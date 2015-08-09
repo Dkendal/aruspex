@@ -1,6 +1,5 @@
 defmodule Aruspex do
-  use GenServer
-  import GenServer
+  use ExActor.GenServer
   import Enum, only: [reduce: 3]
 
   defmodule Var do
@@ -9,42 +8,23 @@ defmodule Aruspex do
     @type t :: %Var{binding: any, constraints: [constraint], domain: Enum.t }
   end
 
-  # Client
-
-  def new(options\\[])
-
-  def new(options) do
-    start_link(__MODULE__, %{}, options)
+  defstart start_link, gen_server_opts: :runtime do
+    initial_state %{}
   end
 
-  def variables(pid, variables) do
-    pid |> cast({:variables, variables})
+  defcast variables(variables), state: state do
+    reduce(variables, state, &put_in(&2[&1], %Var{}))
+    |> new_state
   end
 
-  def domain(pid, variables, domain) do
-    pid |> cast({:domain, variables, domain})
+  defcast domain(variables, domain), state: state do
+    reduce(variables, state, &put_in(&2[&1].domain, domain))
+    |> new_state
   end
 
   def constraint(pid, variables, constraint) do
   end
 
   def label(pid) do
-  end
-
-  # Callbacks
-  @doc "variables/1 callback"
-  def handle_cast({:variables, variables}, state) do
-    new_state = reduce variables, state, fn(v, acc) ->
-      put_in acc, [v], %Var{}
-    end
-    {:noreply, new_state}
-  end
-
-  @doc "domain/2 callback"
-  def handle_cast({:domain, variables, domain}, state) do
-    new_state = reduce variables, state, fn(v, acc) ->
-      update_in acc, [v, :domain], domain
-    end
-    {:noreply, new_state}
   end
 end

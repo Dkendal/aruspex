@@ -3,9 +3,9 @@ defmodule AruspexTest do
 
   @tag timeout: 1000
   test "4 queens" do
-    {:ok, pid} = Aruspex.new
+    {:ok, pid} = Aruspex.start_link
 
-    variables = [W, X, Y, Z]
+    variables = [:w, :x, :y, :z]
     pid |> Aruspex.variables(variables)
     pid |> Aruspex.domain(variables, (for i <- 1..4, j <- 1..4, do: {i,j}))
 
@@ -13,10 +13,10 @@ defmodule AruspexTest do
 
     labels = pid |> Aruspex.label
 
-    assert labels[W] == {1,2}
-    assert labels[X] == {2,4}
-    assert labels[Y] == {3,1}
-    assert labels[Z] == {4,3}
+    assert labels[:w] == {1,2}
+    assert labels[:x] == {2,4}
+    assert labels[:y] == {3,1}
+    assert labels[:z] == {4,3}
   end
 
   def queen_constraints(_pid, [_x]), do: {:ok}
