@@ -22,7 +22,13 @@ defmodule Aruspex do
     |> new_state
   end
 
-  def constraint(pid, variables, constraint) do
+  defcast constraint(variables, constraint), state: state do
+    update_con = fn(variable, state) ->
+      update_in state[variable].constraints, &([constraint|&1])
+    end
+
+    reduce(variables, state, update_con)
+    |> new_state
   end
 
   def label(pid) do
