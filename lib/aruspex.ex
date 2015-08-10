@@ -9,6 +9,10 @@ defmodule Aruspex do
   end
 
   defmodule SimulatedAnnealing do
+    @initial_temp 1
+    @k_max 1_00_000
+    @cooling_constant 1/1000
+
     # https://en.wikipedia.org/wiki/Simulated_annealing
     # Let s = s0
     # For k = 0 through kmax (exclusive):
@@ -20,36 +24,125 @@ defmodule Aruspex do
 
     # s0 :: initial state
     # kmax :: maximum steps
+    def restart(state) do
+      keys = Dict.keys state.variables
+      reduce(keys, state, fn(key, state) ->
+        {:ok, value} = take_random state.variables[key].domain
+        put_in state.variables[key].binding, value
+      end)
+    end
 
-    def temperature(n)
-    def neighbour(state)
-    def acceptance_probability(energy, energy_new, temp)
+    defp finalize(state) do
+      state.variables
+      |> Dict.to_list
+      |> Enum.map fn {k, v} ->
+        {k , v.binding}
+      end
+    end
+
+    def label(state, k\\-1, e_best\\ nil, state_best\\nil)
+    def label(_state, @k_max, e_best, state_best) do
+      finalize(state_best)
+    end
+
+    def label(state, -1, nil, nil) do
+      restart(state)
+      |> label(0)
+    end
+
+    def label(state, k, e_best, state_best) do
+      #state.variables
+      #|> Dict.to_list
+      #|> Enum.map fn({k, v}) ->
+      #  IO.inspect {k, v.binding}
+      #end
+      #IO.inspect e_best
+      #IO.puts ""
+
+      t = temperature(k/@k_max)
+      candidate_state = neighbour(state)
+
+      e = energy(state)
+      e_prime = energy(candidate_state)
+
+      {e_best_prime, state_best_prime} = if e_prime < e_best do
+        {e_prime, candidate_state}
+      else
+        {e_best, state_best}
+      end
+
+      if e == 0 do
+        finalize(state)
+      else
+        if acceptance_probability(e, e_prime, t) > :rand.uniform do
+          label(candidate_state, k+1, e_best_prime, state_best_prime)
+        else
+          label(state, k+1, e_best_prime, state_best_prime)
+        end
+      end
+    end
+
+    def temperature(n) do
+      @initial_temp * :math.exp(@cooling_constant * -n)
+    end
+
+    def neighbour(state) do
+      {:ok, key} = state.variables
+      |> Dict.keys
+      |> take_random
+
+      {:ok, value} = state.variables[key].domain
+      |> take_random
+
+      put_in state.variables[key].binding, value
+    end
+
+    def acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
+
+    def acceptance_probability(e, e_p, temp) do
+      :math.exp(-(e_p - e)) / temp
+    end
+
+    # apply constraints
+    defp energy(state) do
+      reduce state.__constraints__, 0, fn(constraint, e) ->
+        constraint.(state) + e
+      end
+    end
+
+    defp take_random(list) do
+      length(list) - 1
+      |> :rand.uniform
+      |> (&Enum.fetch(list, &1)).()
+    end
   end
-  alias SimulatedAnnealing, as: SA
 
   defstart start_link, gen_server_opts: :runtime do
-    initial_state %{}
+    initial_state %{__constraints__: [], variables: %{}}
   end
 
   defcast variables(variables), state: state do
-    reduce(variables, state, &put_in(&2[&1], %Var{}))
+    reduce(variables, state, &put_in(&2.variables[&1], %Var{}))
     |> new_state
   end
 
   defcast domain(variables, domain), state: state do
-    reduce(variables, state, &put_in(&2[&1].domain, domain))
+    reduce(variables, state, &put_in(&2.variables[&1].domain, domain))
     |> new_state
   end
 
   defcast constraint(variables, constraint), state: state do
-    update_con = fn(variable, state) ->
-      update_in state[variable].constraints, &([constraint|&1])
+    c = fn(state) ->
+      variables
+      |> Enum.map(&state.variables[&1].binding)
+      |> (&apply(constraint, &1)).()
     end
 
-    reduce(variables, state, update_con)
+    update_in(state.__constraints__, &([c|&1]))
     |> new_state
   end
 
-  def label(pid) do
+  defcall label(), state: state, timeout: :infinity do
+    reply SimulatedAnnealing.label(state)
   end
 end

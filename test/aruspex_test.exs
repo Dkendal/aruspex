@@ -1,7 +1,7 @@
 defmodule AruspexTest do
   use ExUnit.Case
 
-  @tag timeout: 1000
+  @tag timeout: :infinity
   test "4 queens" do
     {:ok, pid} = Aruspex.start_link
 
@@ -13,10 +13,15 @@ defmodule AruspexTest do
 
     labels = pid |> Aruspex.label
 
-    assert labels[:w] == {1,2}
-    assert labels[:x] == {2,4}
-    assert labels[:y] == {3,1}
-    assert labels[:z] == {4,3}
+    actual = labels
+    |> Dict.values
+    |> Enum.sort
+
+    solution_1 = [{1,2}, {2,4}, {3,1}, {4,3}] |> Enum.sort
+
+    solution_2 = [{2,1}, {4,2}, {1,3}, {3,4}] |> Enum.sort
+
+    assert actual == solution_1 || actual == solution_2
   end
 
   def queen_constraints(_pid, [_x]), do: {:ok}
@@ -24,12 +29,12 @@ defmodule AruspexTest do
   def queen_constraints(pid, [x|t]) do
     for y <- t do
       pid |> Aruspex.constraint [x, y], fn
-        (s, s) -> false
-        ({s, _x2}, {s, _y2}) -> false
-        ({_x1, s}, {_y1, s}) -> false
-        ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> false
-        ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> false
-        (_, _) -> true
+        (s, s) -> 1
+        ({s, _x2}, {s, _y2}) -> 1
+        ({_x1, s}, {_y1, s}) -> 1
+        ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> 1
+        ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> 1
+        (_, _) -> 0
       end
     end
 
