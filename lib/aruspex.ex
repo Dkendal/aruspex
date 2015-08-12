@@ -105,9 +105,9 @@ defmodule Aruspex do
     end
 
     defp take_random(list) do
-      length(list) - 1
+      length(list)
       |> :rand.uniform
-      |> (&Enum.fetch(list, &1)).()
+      |> (&Enum.fetch(list, &1 - 1)).()
     end
   end
 
