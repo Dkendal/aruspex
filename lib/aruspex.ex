@@ -27,7 +27,7 @@ defmodule Aruspex do
     def restart(state) do
       keys = Dict.keys state.variables
       reduce(keys, state, fn(key, state) ->
-        {:ok, value} = take_random state.variables[key].domain
+        value = take_random state.variables[key].domain
         put_in state.variables[key].binding, value
       end)
     end
@@ -111,9 +111,7 @@ defmodule Aruspex do
     end
 
     defp take_random(list) do
-      length(list)
-      |> :rand.uniform
-      |> (&Enum.fetch(list, &1 - 1)).()
+      list |> Enum.shuffle |> List.first
     end
   end
 
