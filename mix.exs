@@ -27,6 +27,8 @@ defmodule Aruspex.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:exactor, "~> 2.1.0"}, {:dbg, github: "fishcakez/dbg"}]
+    [{:exactor, "~> 2.1.0"},
+     {:exprof, []},
+     {:dbg, github: "fishcakez/dbg"}]
   end
 end
