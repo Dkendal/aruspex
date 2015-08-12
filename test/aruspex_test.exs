@@ -5,23 +5,34 @@ defmodule AruspexTest do
   test "4 queens" do
     {:ok, pid} = Aruspex.start_link
 
-    variables = [:w, :x, :y, :z]
+    variables = :lists.seq(1,4)
     pid |> Aruspex.variables(variables)
-    pid |> Aruspex.domain(variables, (for i <- 1..4, j <- 1..4, do: {i,j}))
+
+    pid |> Aruspex.domain(variables, (for i <- 1..length(variables), j <- 1..length(variables), do: {i,j}))
+    #for v <- variables do
+    #  pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
+    #end
 
     queen_constraints(pid, variables)
 
-    labels = pid |> Aruspex.label
+    iterations = 10
+    results = for _ <- 1..iterations do
+      {labels, cost} = pid |> Aruspex.label
+      actual = labels
+      |> Dict.values
+      |> Enum.sort
 
-    actual = labels
-    |> Dict.values
-    |> Enum.sort
+      solution_1 = [{1,2}, {2,4}, {3,1}, {4,3}] |> Enum.sort
 
-    solution_1 = [{1,2}, {2,4}, {3,1}, {4,3}] |> Enum.sort
+      solution_2 = [{2,1}, {4,2}, {1,3}, {3,4}] |> Enum.sort
 
-    solution_2 = [{2,1}, {4,2}, {1,3}, {3,4}] |> Enum.sort
+      {actual == solution_1 || actual == solution_2, cost}
+    end
 
-    assert actual == solution_1 || actual == solution_2
+    right = Enum.count results, &(elem(&1, 0) == true)
+    avg_e = (Enum.map(results, &(elem(&1, 1))) |> Enum.sum) / iterations
+    IO.inspect right
+    IO.inspect avg_e
   end
 
   def queen_constraints(_pid, [_x]), do: {:ok}

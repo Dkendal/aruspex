@@ -10,7 +10,7 @@ defmodule Aruspex do
 
   defmodule SimulatedAnnealing do
     @initial_temp 1
-    @k_max 1_00_000
+    @k_max 500
     @cooling_constant 1/1000
 
     # https://en.wikipedia.org/wiki/Simulated_annealing
@@ -32,17 +32,19 @@ defmodule Aruspex do
       end)
     end
 
-    defp finalize(state) do
-      state.variables
+    defp finalize(state, e_best) do
+      labels = state.variables
       |> Dict.to_list
       |> Enum.map fn {k, v} ->
         {k , v.binding}
       end
+
+      {labels, e_best}
     end
 
     def label(state, k\\-1, e_best\\ nil, state_best\\nil)
     def label(_state, @k_max, e_best, state_best) do
-      finalize(state_best)
+      finalize(state_best, e_best)
     end
 
     def label(state, -1, nil, nil) do
@@ -51,14 +53,6 @@ defmodule Aruspex do
     end
 
     def label(state, k, e_best, state_best) do
-      #state.variables
-      #|> Dict.to_list
-      #|> Enum.map fn({k, v}) ->
-      #  IO.inspect {k, v.binding}
-      #end
-      #IO.inspect e_best
-      #IO.puts ""
-
       t = temperature(k/@k_max)
       candidate_state = neighbour(state)
 
@@ -72,7 +66,7 @@ defmodule Aruspex do
       end
 
       if e == 0 do
-        finalize(state)
+        finalize(state, 0)
       else
         if acceptance_probability(e, e_prime, t) > :rand.uniform do
           label(candidate_state, k+1, e_best_prime, state_best_prime)
