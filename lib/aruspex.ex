@@ -64,6 +64,11 @@ defmodule Aruspex do
       else
         {e_best, state_best}
       end
+      #IO.inspect e_prime
+      #for {_, v} <- candidate_state.variables do
+      #  v.binding
+      #end
+      #|> IO.inspect
 
       if e == 0 do
         finalize(state, 0)
@@ -81,18 +86,19 @@ defmodule Aruspex do
     end
 
     def neighbour(state) do
-      {:ok, key} = state.variables
+      key = state.variables
       |> Dict.keys
       |> take_random
 
-      {:ok, value} = state.variables[key].domain
+      v = state.variables[key]
+
+      value = (v.domain -- [v.binding])
       |> take_random
 
       put_in state.variables[key].binding, value
     end
 
     def acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
-
     def acceptance_probability(e, e_p, temp) do
       :math.exp(-(e_p - e)) / temp
     end
