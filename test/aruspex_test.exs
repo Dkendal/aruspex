@@ -1,17 +1,18 @@
 defmodule AruspexTest do
   use ExUnit.Case
 
-  @tag timeout: :infinity
+  @tag timeout: 100
   test "4 queens" do
+    queens = 4
+    variables = :lists.seq(1,queens)
+
     {:ok, pid} = Aruspex.start_link
 
-    variables = :lists.seq(1,4)
     pid |> Aruspex.variables(variables)
 
-    pid |> Aruspex.domain(variables, (for i <- 1..length(variables), j <- 1..length(variables), do: {i,j}))
-    #for v <- variables do
-    #  pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
-    #end
+    for v <- variables do
+      pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
+    end
 
     queen_constraints(pid, variables)
 
@@ -20,22 +21,17 @@ defmodule AruspexTest do
       {labels, cost} = pid |> Aruspex.label
       actual = labels
       |> Dict.values
-      |> Enum.sort
 
-      solution_1 = [{1,2}, {2,4}, {3,1}, {4,3}] |> Enum.sort
+      solutions = [
+        [{1,2}, {2,4}, {3,1}, {4,3}],
+        [{1,3}, {2,1}, {3,4}, {4,2}]]
 
-      solution_2 = [{2,1}, {4,2}, {1,3}, {3,4}] |> Enum.sort
-
-      {actual == solution_1 || actual == solution_2, cost}
+      assert 0 = cost
+      assert actual in solutions
     end
-
-    right = Enum.count results, &(elem(&1, 0) == true)
-    avg_e = (Enum.map(results, &(elem(&1, 1))) |> Enum.sum) / iterations
-    IO.inspect right
-    IO.inspect avg_e
   end
 
-  def queen_constraints(_pid, [_x]), do: {:ok}
+  def queen_constraints(_pid, [_x]), do: :ok
 
   def queen_constraints(pid, [x|t]) do
     for y <- t do
