@@ -64,11 +64,6 @@ defmodule Aruspex do
       else
         {e_best, state_best}
       end
-      #IO.inspect e_prime
-      #for {_, v} <- candidate_state.variables do
-      #  v.binding
-      #end
-      #|> IO.inspect
 
       if e == 0 do
         finalize(state, k, 0)
