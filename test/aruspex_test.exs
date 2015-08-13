@@ -1,33 +1,45 @@
 defmodule AruspexTest do
   use ExUnit.Case
 
-  @tag timeout: 100
-  test "4 queens" do
-    queens = 4
-    variables = :lists.seq(1,queens)
+  @tag timeout: 10000
+  test "Queens" do
+    iterations = 10
+    run = fn (queens) ->
+      variables = :lists.seq(1,queens)
 
-    {:ok, pid} = Aruspex.start_link
+      {:ok, pid} = Aruspex.start_link
 
-    pid |> Aruspex.variables(variables)
+      pid |> Aruspex.variables(variables)
 
-    for v <- variables do
-      pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
+      for v <- variables do
+        pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
+      end
+
+      queen_constraints(pid, variables)
+
+      for _ <- 1..iterations do
+        {_labels, steps, cost} = pid |> Aruspex.label
+        {steps, cost}
+      end
+      |> Enum.reduce({0,0,0}, fn({steps, cost}, {s, c, a}) ->
+      solved = if cost == 0 do 1 else 0 end
+
+      {steps + s, cost + c, a + solved}
+      end)
+      |> case do
+        {s, c, solved} ->
+          IO.puts """
+          #{queens} Queens:
+          Iterations: #{iterations}
+          Average steps: #{s/iterations}
+          Average energry: #{c/iterations}
+          Solutions found: #{solved}
+          """
+      end
     end
 
-    queen_constraints(pid, variables)
-
-    iterations = 10
-    results = for _ <- 1..iterations do
-      {labels, cost} = pid |> Aruspex.label
-      actual = labels
-      |> Dict.values
-
-      solutions = [
-        [{1,2}, {2,4}, {3,1}, {4,3}],
-        [{1,3}, {2,1}, {3,4}, {4,2}]]
-
-      assert 0 = cost
-      assert actual in solutions
+    for queens <- 4..8 do
+      run.(queens)
     end
   end
 

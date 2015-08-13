@@ -32,19 +32,19 @@ defmodule Aruspex do
       end)
     end
 
-    defp finalize(state, e_best) do
+    defp finalize(state, k, e_best) do
       labels = state.variables
       |> Dict.to_list
       |> Enum.map fn {k, v} ->
         {k , v.binding}
       end
 
-      {labels, e_best}
+      {labels, k, e_best}
     end
 
     def label(state, k\\-1, e_best\\ nil, state_best\\nil)
     def label(_state, @k_max, e_best, state_best) do
-      finalize(state_best, e_best)
+      finalize(state_best, @k_max, e_best)
     end
 
     def label(state, -1, nil, nil) do
@@ -71,7 +71,7 @@ defmodule Aruspex do
       #|> IO.inspect
 
       if e == 0 do
-        finalize(state, 0)
+        finalize(state, k, 0)
       else
         if acceptance_probability(e, e_prime, t) > :rand.uniform do
           label(candidate_state, k+1, e_best_prime, state_best_prime)
