@@ -1,62 +1,70 @@
-defmodule AruspexTest do
-  use ExUnit.Case
+defmodule QueenTest do
+  defmacro run queens do
+    quote do
+      @tag timeout: 10000
+      test "#{unquote queens} queens" do
+        iterations = 10
+        variables = :lists.seq(1, unquote queens)
 
-  @tag timeout: 10000
-  test "Queens" do
-    iterations = 10
-    run = fn (queens) ->
-      variables = :lists.seq(1,queens)
+        {:ok, pid} = Aruspex.start_link
 
-      {:ok, pid} = Aruspex.start_link
+        pid |> Aruspex.variables(variables)
 
-      pid |> Aruspex.variables(variables)
+        for v <- variables do
+          pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
+        end
 
-      for v <- variables do
-        pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
-      end
+        queen_constraints = fn
+          (_pid, [_x], _fun) -> :ok
+          (pid, [x|t], queen_constraints) ->
+            for y <- t do
+              pid |> Aruspex.constraint [x, y], fn
+                (s, s) -> 1
+                ({s, _x2}, {s, _y2}) -> 1
+                ({_x1, s}, {_y1, s}) -> 1
+                ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> 1
+                ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> 1
+                (_, _) -> 0
+              end
+            end
+            queen_constraints.(pid, t, queen_constraints)
+        end
 
-      queen_constraints(pid, variables)
+        queen_constraints.(pid, variables, queen_constraints)
 
-      for _ <- 1..iterations do
-        {_labels, steps, cost} = pid |> Aruspex.label
-        {steps, cost}
-      end
-      |> Enum.reduce({0,0,0}, fn({steps, cost}, {s, c, a}) ->
+        for _ <- 1..iterations do
+          {_labels, steps, cost} = pid |> Aruspex.label
+          {steps, cost}
+        end
+        |> Enum.reduce({0,0,0}, fn({steps, cost}, {s, c, a}) ->
       solved = if cost == 0 do 1 else 0 end
 
       {steps + s, cost + c, a + solved}
-      end)
-      |> case do
-        {s, c, solved} ->
-          IO.puts """
-          #{queens} Queens:
-          Iterations: #{iterations}
-          Average steps: #{s/iterations}
-          Average energry: #{c/iterations}
-          Solutions found: #{solved}
-          """
+        end)
+        |> case do
+          {s, c, solved} ->
+            IO.puts """
+
+            #{unquote queens} Queens:
+            Iterations: #{iterations}
+            Average steps: #{s/iterations}
+            Average energry: #{c/iterations}
+            Solutions found: #{solved}
+            """
+            assert ^iterations = solved
+        end
       end
     end
-
-    for queens <- 4..8 do
-      run.(queens)
-    end
   end
+end
 
-  def queen_constraints(_pid, [_x]), do: :ok
+defmodule AruspexTest do
+  use ExUnit.Case
+  require QueenTest
 
-  def queen_constraints(pid, [x|t]) do
-    for y <- t do
-      pid |> Aruspex.constraint [x, y], fn
-        (s, s) -> 1
-        ({s, _x2}, {s, _y2}) -> 1
-        ({_x1, s}, {_y1, s}) -> 1
-        ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> 1
-        ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> 1
-        (_, _) -> 0
-      end
-    end
-
-    queen_constraints(pid, t)
-  end
+  QueenTest.run 8
+  QueenTest.run 7
+  QueenTest.run 6
+  QueenTest.run 5
+  QueenTest.run 4
 end
