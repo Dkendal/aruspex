@@ -92,7 +92,7 @@ defmodule Aruspex.SimulatedAnnealing do
 
   # apply constraints
   defp energy(state) do
-    reduce state.__constraints__, 0, fn(constraint, e) ->
+    reduce state.constraints, 0, fn(constraint, e) ->
       constraint.(state) + e
     end
   end

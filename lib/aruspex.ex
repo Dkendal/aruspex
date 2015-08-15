@@ -6,11 +6,15 @@ defmodule Aruspex do
   defmodule Var do
     defstruct binding: nil, constraints: [], domain: []
     @type constraint :: ((any, any) -> boolean)
-    @type t :: %Var{binding: any, constraints: [constraint], domain: Enum.t }
+    @type t :: %Var{binding: any, domain: Enum.t }
+  end
+
+  defmodule State do
+    defstruct constraints: [], variables: %{}
   end
 
   defstart start_link, gen_server_opts: :runtime do
-    initial_state %{__constraints__: [], variables: %{}}
+    initial_state %State{}
   end
 
   defcast variables(variables), state: state do
@@ -30,7 +34,7 @@ defmodule Aruspex do
       |> (&apply(constraint, &1)).()
     end
 
-    update_in(state.__constraints__, &([c|&1]))
+    update_in(state.constraints, fn(t) -> [c|t] end)
     |> new_state
   end
 
