@@ -3,7 +3,7 @@ defmodule QueenTest do
     quote do
       @tag timeout: 10000
       test "#{unquote queens} queens" do
-        iterations = 10
+        iterations = 100
         variables = :lists.seq(1, unquote queens)
 
         {:ok, pid} = Aruspex.start_link
@@ -62,9 +62,9 @@ defmodule AruspexTest do
   use ExUnit.Case
   require QueenTest
 
-  QueenTest.run 8
-  QueenTest.run 7
-  QueenTest.run 6
-  QueenTest.run 5
+  #QueenTest.run 8
+  #QueenTest.run 7
+  #QueenTest.run 6
+  #QueenTest.run 5
   QueenTest.run 4
 end

@@ -11,10 +11,13 @@
 # kmax :: maximum steps
 defmodule Aruspex.SimulatedAnnealing do
   import Enum, only: [reduce: 3]
+  import Aruspex, only: [energy: 1]
+
+  use PatternTap
 
   @initial_temp 1
   @k_max 500
-  @cooling_constant 1/1000
+  @cooling_constant 1/100
 
   def restart(state) do
     keys = Dict.keys state.variables
@@ -25,13 +28,10 @@ defmodule Aruspex.SimulatedAnnealing do
   end
 
   defp finalize(state, k, e_best) do
-    labels = state.variables
-              |> Dict.to_list
-    |> Enum.map fn {k, v} ->
-    {k , v.binding}
-    end
-
-    {labels, k, e_best}
+    state.variables
+    |> Dict.to_list
+    |> Enum.map(fn {k, v} -> {k , v.binding} end)
+    |> tap(labels ~> {labels, k, e_best})
   end
 
   def label(state, k\\-1, e_best\\ nil, state_best\\nil)
@@ -48,8 +48,8 @@ defmodule Aruspex.SimulatedAnnealing do
     t = temperature(k/@k_max)
     candidate_state = neighbour(state)
 
-    e = Aruspex.energy(state)
-    e_prime = Aruspex.energy(candidate_state)
+    e = energy(state)
+    e_prime = energy(candidate_state)
 
     {e_best_prime, state_best_prime} = if e_prime < e_best do
       {e_prime, candidate_state}
@@ -77,20 +77,20 @@ defmodule Aruspex.SimulatedAnnealing do
           |> Dict.keys
           |> take_random
 
-    v = state.variables[key]
-
-    value = (v.domain -- [v.binding])
-            |> take_random
-
-    put_in state.variables[key].binding, value
+    state.variables[key]
+    |> tap(v ~> v.domain -- [v.binding])
+    |> take_random
+    |> tap(v ~> put_in state.variables[key].binding, v)
   end
 
   def acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
   def acceptance_probability(e, e_p, temp) do
-    :math.exp(-(e_p - e)) / temp
+    :math.exp(-(e_p - e))
   end
 
   defp take_random(list) do
-    list |> Enum.shuffle |> List.first
+    list
+    |> Enum.shuffle
+    |> List.first
   end
 end
