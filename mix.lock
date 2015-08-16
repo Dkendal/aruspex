@@ -1,4 +1,5 @@
 %{"dbg": {:git, "git://github.com/fishcakez/dbg.git", "8c3ec3eca04cd07bc9a90a195561c8bbd9e5a639", []},
   "exactor": {:hex, :exactor, "2.1.2"},
   "exprintf": {:hex, :exprintf, "0.1.6"},
-  "exprof": {:hex, :exprof, "0.2.0"}}
+  "exprof": {:hex, :exprof, "0.2.0"},
+  "pattern_tap": {:hex, :pattern_tap, "0.2.1"}}

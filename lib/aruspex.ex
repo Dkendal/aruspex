@@ -1,7 +1,8 @@
 defmodule Aruspex do
   import Enum, only: [reduce: 3]
+
   use ExActor.GenServer
-  alias Aruspex.SimulatedAnnealing
+  use PatternTap
 
   defmodule Var do
     defstruct binding: nil, constraints: [], domain: []
@@ -27,18 +28,17 @@ defmodule Aruspex do
     |> new_state
   end
 
-  defcast constraint(variables, constraint), state: state do
-    c = fn(state) ->
+  defcast constraint(variables, constraint_fn), state: state do
+    fn(state) ->
       variables
       |> Enum.map(&state.variables[&1].binding)
-      |> (&apply(constraint, &1)).()
+      |> tap(v ~> apply(constraint_fn, v))
     end
-
-    update_in(state.constraints, fn(t) -> [c|t] end)
+    |> tap(c ~> update_in(state.constraints, fn(t) -> [c|t] end))
     |> new_state
   end
 
   defcall label(), state: state, timeout: :infinity do
-    reply SimulatedAnnealing.label(state)
+    reply Aruspex.SimulatedAnnealing.label(state)
   end
 end
