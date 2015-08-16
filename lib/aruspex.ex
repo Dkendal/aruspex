@@ -41,4 +41,10 @@ defmodule Aruspex do
   defcall label(), state: state, timeout: :infinity do
     reply Aruspex.SimulatedAnnealing.label(state)
   end
+
+  def energy(state) do
+    reduce state.constraints, 0, fn(constraint, e) ->
+      constraint.(state) + e
+    end
+  end
 end

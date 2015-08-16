@@ -48,8 +48,8 @@ defmodule Aruspex.SimulatedAnnealing do
     t = temperature(k/@k_max)
     candidate_state = neighbour(state)
 
-    e = energy(state)
-    e_prime = energy(candidate_state)
+    e = Aruspex.energy(state)
+    e_prime = Aruspex.energy(candidate_state)
 
     {e_best_prime, state_best_prime} = if e_prime < e_best do
       {e_prime, candidate_state}
@@ -88,13 +88,6 @@ defmodule Aruspex.SimulatedAnnealing do
   def acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
   def acceptance_probability(e, e_p, temp) do
     :math.exp(-(e_p - e)) / temp
-  end
-
-  # apply constraints
-  defp energy(state) do
-    reduce state.constraints, 0, fn(constraint, e) ->
-      constraint.(state) + e
-    end
   end
 
   defp take_random(list) do
