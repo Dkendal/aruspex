@@ -29,6 +29,7 @@ defmodule Aruspex.Mixfile do
   defp deps do
     [{:exactor, "~> 2.1.0"},
      {:pattern_tap, []},
+     {:exyz, "~> 1.0.0"},
      {:exprof, []},
      {:dbg, github: "fishcakez/dbg"}]
   end

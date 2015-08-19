@@ -2,4 +2,5 @@
   "exactor": {:hex, :exactor, "2.1.2"},
   "exprintf": {:hex, :exprintf, "0.1.6"},
   "exprof": {:hex, :exprof, "0.2.0"},
+  "exyz": {:hex, :exyz, "1.0.0"},
   "pattern_tap": {:hex, :pattern_tap, "0.2.1"}}
