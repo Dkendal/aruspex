@@ -46,14 +46,37 @@ defmodule Aruspex do
   end
 
   def compute_cost state do
+    state = zero_cost state
+
     apply_constraint = fn (v, c) ->
       apply c, (for x <- v, do: state.variables[x].binding)
     end
 
     Enum.reduce state.constraints, state, fn {v, c}, state ->
       cost = apply_constraint.(v, c)
-      set_cost(state, v, cost)
+      add_cost(state, v, cost)
     end
+  end
+
+  def variable_names state do
+    Dict.keys state.variables
+  end
+
+  def zero_cost state do
+    set_cost state, variable_names(state), 0
+  end
+
+  def add_cost state, [], _cost do
+    state
+  end
+
+  def add_cost state, [h|t], cost do
+    add_cost(state, h, cost)
+    |> add_cost(t, cost)
+  end
+
+  def add_cost state, v, cost do
+    update_in(state.variables[v].cost, &(&1 + cost))
   end
 
   def set_cost state, [], _cost do
@@ -61,7 +84,11 @@ defmodule Aruspex do
   end
 
   def set_cost state, [h|t], cost do
-    put_in(state.variables[h].cost, cost)
-    |> set_cost t, cost
+    set_cost(state, h, cost)
+    |> set_cost(t, cost)
+  end
+
+  def set_cost state, v, cost do
+    put_in(state.variables[v].cost, cost)
   end
 end
