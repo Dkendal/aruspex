@@ -37,12 +37,13 @@ defmodule Aruspex do
     |> new_state
   end
 
-  defcall label(), state: state, timeout: :infinity do
-    reply Aruspex.SimulatedAnnealing.label(state)
+  defcast label(), state: state, from: from, timeout: :infinity do
+    Aruspex.SimulatedAnnealing.label(state)
+    |> new_state
   end
 
-  def energy(state) do
-    Enum.sum state.variables, fn var -> var.cost end
+  defcall get_state(), state: state do
+    reply state
   end
 
   def compute_cost state do

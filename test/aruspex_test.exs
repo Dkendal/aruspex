@@ -33,25 +33,9 @@ defmodule QueenTest do
         queen_constraints.(pid, variables, queen_constraints)
 
         for _ <- 1..iterations do
-          {_labels, steps, cost} = pid |> Aruspex.label
-          {steps, cost}
-        end
-        |> Enum.reduce({0,0,0}, fn({steps, cost}, {s, c, a}) ->
-      solved = if cost == 0 do 1 else 0 end
-
-      {steps + s, cost + c, a + solved}
-        end)
-        |> case do
-          {s, c, solved} ->
-            IO.puts """
-
-            #{unquote queens} Queens:
-            Iterations: #{iterations}
-            Average steps: #{s/iterations}
-            Average energry: #{c/iterations}
-            Solutions found: #{solved}
-            """
-            assert ^iterations = solved
+          pid |> Aruspex.label
+          state = pid |> Aruspex.get_state
+          assert 0 == state.cost
         end
       end
     end

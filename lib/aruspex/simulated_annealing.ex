@@ -11,7 +11,7 @@
 # kmax :: maximum steps
 defmodule Aruspex.SimulatedAnnealing do
   import Enum, only: [reduce: 3]
-  import Aruspex, only: [energy: 1]
+  import Aruspex, only: [compute_cost: 1]
 
   use PatternTap
 
@@ -27,43 +27,28 @@ defmodule Aruspex.SimulatedAnnealing do
     end)
   end
 
-  defp finalize(state, k, e_best) do
-    state.variables
-    |> Dict.to_list
-    |> Enum.map(fn {k, v} -> {k , v.binding} end)
-    |> tap(labels ~> {labels, k, e_best})
-  end
+  def label(state, k\\-1)
 
-  def label(state, k\\-1, e_best\\ nil, state_best\\nil)
-  def label(_state, @k_max, e_best, state_best) do
-    finalize(state_best, @k_max, e_best)
-  end
+  def label(s, @k_max), do: s
 
-  def label(state, -1, nil, nil) do
+  def label(state, -1) do
     restart(state)
+    |> compute_cost
     |> label(0)
   end
 
-  def label(state, k, e_best, state_best) do
+  def label(s, k) do
     t = temperature(k/@k_max)
-    candidate_state = neighbour(state)
 
-    e = energy(state)
-    e_prime = energy(candidate_state)
+    s_prime = compute_cost neighbour s
 
-    {e_best_prime, state_best_prime} = if e_prime < e_best do
-      {e_prime, candidate_state}
+    if s.cost == 0 do
+      s
     else
-      {e_best, state_best}
-    end
-
-    if e == 0 do
-      finalize(state, k, 0)
-    else
-      if acceptance_probability(e, e_prime, t) > :rand.uniform do
-        label(candidate_state, k+1, e_best_prime, state_best_prime)
+      if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
+        label(s_prime, k+1)
       else
-        label(state, k+1, e_best_prime, state_best_prime)
+        label(s, k+1)
       end
     end
   end
