@@ -67,4 +67,20 @@ defmodule AruspexTest do
   #QueenTest.run 6
   #QueenTest.run 5
   QueenTest.run 4
+
+  test "compute_cost/1" do
+    {:ok, pid} = Aruspex.start_link
+    pid |> Aruspex.variables([:x])
+    pid |> Aruspex.domain([:x], [1])
+    pid |> Aruspex.constraint([:x], fn
+      1 -> 100
+      _ -> raise "unreachable"
+    end)
+
+    result = :sys.get_state(pid).variables.x.binding
+    |> put_in(1)
+    |> Aruspex.compute_cost()
+
+    assert 200 = result.variables.x.cost
+  end
 end

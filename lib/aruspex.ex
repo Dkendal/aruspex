@@ -3,9 +3,10 @@ defmodule Aruspex do
 
   use ExActor.GenServer
   use PatternTap
+  use Exyz
 
   defmodule Var do
-    defstruct binding: nil, constraints: [], domain: []
+    defstruct binding: nil, constraints: [], domain: [], cost: 0
     @type constraint :: ((any, any) -> boolean)
     @type t :: %Var{binding: any, domain: Enum.t }
   end
@@ -28,13 +29,11 @@ defmodule Aruspex do
     |> new_state
   end
 
-  defcast constraint(variables, constraint_fn), state: state do
-    fn(state) ->
-      variables
-      |> Enum.map(&state.variables[&1].binding)
-      |> tap(v ~> apply(constraint_fn, v))
-    end
-    |> tap(c ~> update_in(state.constraints, fn(t) -> [c|t] end))
+  # v: [variable], c: constraint
+  defcast constraint(v, c), state: state do
+    update_in(state.constraints, fn constraints ->
+      [{v, c}| constraints]
+    end)
     |> new_state
   end
 
@@ -43,8 +42,26 @@ defmodule Aruspex do
   end
 
   def energy(state) do
-    reduce state.constraints, 0, fn(constraint, e) ->
-      constraint.(state) + e
+    Enum.sum state.variables, fn var -> var.cost end
+  end
+
+  def compute_cost state do
+    apply_constraint = fn (v, c) ->
+      apply c, (for x <- v, do: state.variables[x].binding)
     end
+
+    Enum.reduce state.constraints, state, fn {v, c}, state ->
+      cost = apply_constraint.(v, c)
+      set_cost(state, v, cost)
+    end
+  end
+
+  def set_cost state, [], _cost do
+    state
+  end
+
+  def set_cost state, [h|t], cost do
+    put_in(state.variables[h].cost, cost)
+    |> set_cost t, cost
   end
 end
