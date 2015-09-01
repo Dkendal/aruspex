@@ -65,7 +65,7 @@ defmodule Aruspex do
 
   def zero_cost state do
     put_in(state.cost, 0)
-    |> set_cost terms(state), 0
+    |> put_cost terms(state), 0
   end
 
   def add_cost state, [], _cost do
@@ -81,16 +81,16 @@ defmodule Aruspex do
     update_in(state.variables[v].cost, &(&1 + cost))
   end
 
-  def set_cost state, [], _cost do
+  def put_cost state, [], _cost do
     state
   end
 
-  def set_cost state, [h|t], cost do
-    set_cost(state, h, cost)
-    |> set_cost(t, cost)
+  def put_cost state, [h|t], cost do
+    put_cost(state, h, cost)
+    |> put_cost(t, cost)
   end
 
-  def set_cost state, v, cost do
+  def put_cost state, v, cost do
     put_in(state.variables[v].cost, cost)
   end
 end
