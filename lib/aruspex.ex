@@ -12,7 +12,7 @@ defmodule Aruspex do
   end
 
   defmodule State do
-    defstruct constraints: [], variables: %{}
+    defstruct constraints: [], variables: %{}, cost: 0
   end
 
   defstart start_link, gen_server_opts: :runtime do
@@ -50,7 +50,8 @@ defmodule Aruspex do
 
     Enum.reduce state.constraints, state, fn {v, c}, state ->
       cost = apply c, value_of(state, v)
-      add_cost(state, v, cost)
+      state = add_cost(state, v, cost)
+      update_in state.cost, &(&1 + cost)
     end
   end
 
@@ -63,7 +64,8 @@ defmodule Aruspex do
   end
 
   def zero_cost state do
-    set_cost state, terms(state), 0
+    put_in(state.cost, 0)
+    |> set_cost terms(state), 0
   end
 
   def add_cost state, [], _cost do

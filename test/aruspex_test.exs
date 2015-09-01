@@ -70,21 +70,28 @@ defmodule AruspexTest do
 
   test "compute_cost/1" do
     {:ok, pid} = Aruspex.start_link
-    pid |> Aruspex.variables([:x])
-    pid |> Aruspex.domain([:x], [1])
+    pid |> Aruspex.variables([:x, :y])
+    pid |> Aruspex.domain([:x, :y], [1])
     pid |> Aruspex.constraint([:x], fn
       1 -> 100
-      _ -> raise "unreachable"
+      _ -> flunk "unreachable"
     end)
-    pid |> Aruspex.constraint([:x], fn
+    pid |> Aruspex.constraint([:y], fn
       1 -> 100
-      _ -> raise "unreachable"
+      _ -> flunk "unreachable"
+    end)
+    pid |> Aruspex.constraint([:y, :x], fn
+      s, s -> 100
+      _, _ -> flunk "unreachable"
     end)
 
-    result = :sys.get_state(pid).variables.x.binding
-    |> put_in(1)
-    |> Aruspex.compute_cost()
+    state = :sys.get_state(pid)
+    state = put_in state.variables.x.binding, 1
+    state = put_in state.variables.y.binding, 1
 
-    assert 200 = result.variables.x.cost
+    state = Aruspex.compute_cost(state)
+
+    assert 200 = state.variables.x.cost
+    assert 300 = state.cost
   end
 end
