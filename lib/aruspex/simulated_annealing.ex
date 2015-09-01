@@ -16,7 +16,7 @@ defmodule Aruspex.SimulatedAnnealing do
   use PatternTap
 
   @initial_temp 1
-  @k_max 500
+  @k_max 100000
   @cooling_constant 1/100
 
   def restart(state) do
@@ -29,7 +29,6 @@ defmodule Aruspex.SimulatedAnnealing do
 
   def label(state, k\\-1)
 
-  def label(s, @k_max), do: s
 
   def label(state, -1) do
     restart(state)
@@ -37,19 +36,17 @@ defmodule Aruspex.SimulatedAnnealing do
     |> label(0)
   end
 
+  def label(%{cost: 0} = s, k), do: s
+  def label(s, @k_max), do: s
+
   def label(s, k) do
     t = temperature(k/@k_max)
-
     s_prime = compute_cost neighbour s
 
-    if s.cost == 0 do
-      s
+    if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
+      label(s_prime, k+1)
     else
-      if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
-        label(s_prime, k+1)
-      else
-        label(s, k+1)
-      end
+      label(s, k+1)
     end
   end
 
@@ -59,6 +56,8 @@ defmodule Aruspex.SimulatedAnnealing do
 
   def neighbour(state) do
     key = state.variables
+          |> Dict.to_list
+          |> Enum.reject(fn {k,v} -> v.cost == 0 end)
           |> Dict.keys
           |> take_random
 

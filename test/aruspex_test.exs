@@ -1,7 +1,7 @@
 defmodule QueenTest do
   defmacro run queens do
     quote do
-      @tag timeout: 10000
+      @tag timeout: 100000
       test "#{unquote queens} queens" do
         iterations = 100
         variables = :lists.seq(1, unquote queens)
@@ -43,13 +43,13 @@ defmodule QueenTest do
 end
 
 defmodule AruspexTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   require QueenTest
 
-  #QueenTest.run 8
-  #QueenTest.run 7
-  #QueenTest.run 6
-  #QueenTest.run 5
+  QueenTest.run 8
+  QueenTest.run 7
+  QueenTest.run 6
+  QueenTest.run 5
   QueenTest.run 4
 
   test "compute_cost/1" do
