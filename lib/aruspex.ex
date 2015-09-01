@@ -48,12 +48,8 @@ defmodule Aruspex do
   def compute_cost state do
     state = zero_cost state
 
-    apply_constraint = fn (v, c) ->
-      apply c, value_of(state, v)
-    end
-
     Enum.reduce state.constraints, state, fn {v, c}, state ->
-      cost = apply_constraint.(v, c)
+      cost = apply c, value_of(state, v)
       add_cost(state, v, cost)
     end
   end
