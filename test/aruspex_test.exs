@@ -3,7 +3,6 @@ defmodule QueenTest do
     quote do
       @tag timeout: 100000
       test "#{unquote queens} queens" do
-        iterations = 100
         variables = :lists.seq(1, unquote queens)
 
         {:ok, pid} = Aruspex.start_link
@@ -32,11 +31,9 @@ defmodule QueenTest do
 
         queen_constraints.(pid, variables, queen_constraints)
 
-        for _ <- 1..iterations do
-          pid |> Aruspex.label
-          state = pid |> Aruspex.get_state
-          assert 0 == state.cost
-        end
+        pid |> Aruspex.label
+        state = pid |> Aruspex.get_state
+        assert 0 == state.cost
       end
     end
   end
@@ -46,10 +43,6 @@ defmodule AruspexTest do
   use ExUnit.Case, async: true
   require QueenTest
 
-  QueenTest.run 8
-  QueenTest.run 7
-  QueenTest.run 6
-  QueenTest.run 5
   QueenTest.run 4
 
   test "compute_cost/1" do

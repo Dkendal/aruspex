@@ -16,7 +16,7 @@ defmodule Aruspex.SimulatedAnnealing do
   use PatternTap
 
   @initial_temp 1
-  @k_max 100000
+  @k_max 10000
   @cooling_constant 1/100
 
   def restart(state) do
@@ -28,7 +28,6 @@ defmodule Aruspex.SimulatedAnnealing do
   end
 
   def label(state, k\\-1)
-
 
   def label(state, -1) do
     restart(state)
@@ -50,10 +49,6 @@ defmodule Aruspex.SimulatedAnnealing do
     end
   end
 
-  def temperature(n) do
-    @initial_temp * :math.exp(@cooling_constant * -n)
-  end
-
   def neighbour(state) do
     key = state.variables
           |> Dict.to_list
@@ -67,8 +62,12 @@ defmodule Aruspex.SimulatedAnnealing do
     |> tap(v ~> put_in state.variables[key].binding, v)
   end
 
-  def acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
-  def acceptance_probability(e, e_p, temp) do
+  defp temperature(n) do
+    @initial_temp * :math.exp(@cooling_constant * -n)
+  end
+
+  defp acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
+  defp acceptance_probability(e, e_p, temp) do
     :math.exp(-(e_p - e))
   end
 
