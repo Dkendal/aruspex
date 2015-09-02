@@ -62,10 +62,6 @@ defmodule Aruspex do
     |> compute_cost(t)
   end
 
-  def add_total_cost state, cost do
-    update_in state.cost, &(&1 + cost)
-  end
-
   def value_of state, terms do
     for x <- terms, do: state.variables[x].binding
   end
@@ -74,34 +70,38 @@ defmodule Aruspex do
     Dict.keys state.variables
   end
 
-  def zero_cost state do
+  defp add_total_cost state, cost do
+    update_in state.cost, &(&1 + cost)
+  end
+
+  defp zero_cost state do
     put_in(state.cost, 0)
     |> put_cost terms(state), 0
   end
 
-  def add_cost state, [], _cost do
+  defp add_cost state, [], _cost do
     state
   end
 
-  def add_cost state, [h|t], cost do
+  defp add_cost state, [h|t], cost do
     add_cost(state, h, cost)
     |> add_cost(t, cost)
   end
 
-  def add_cost state, v, cost do
+  defp add_cost state, v, cost do
     update_in(state.variables[v].cost, &(&1 + cost))
   end
 
-  def put_cost state, [], _cost do
+  defp put_cost state, [], _cost do
     state
   end
 
-  def put_cost state, [h|t], cost do
+  defp put_cost state, [h|t], cost do
     put_cost(state, h, cost)
     |> put_cost(t, cost)
   end
 
-  def put_cost state, v, cost do
+  defp put_cost state, v, cost do
     put_in(state.variables[v].cost, cost)
   end
 end
