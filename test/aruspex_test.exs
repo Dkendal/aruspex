@@ -13,9 +13,9 @@ defmodule QueenTest do
           pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
         end
 
-        queen_constraints = fn
-          (_pid, [_x], _fun) -> :ok
-          (pid, [x|t], queen_constraints) ->
+        Enum.reduce variables, variables, fn
+          (_, [_]) -> :ok
+          (_, [x|t]) ->
             for y <- t do
               pid |> Aruspex.constraint [x, y], fn
                 (s, s) -> 1
@@ -26,10 +26,8 @@ defmodule QueenTest do
                 (_, _) -> 0
               end
             end
-            queen_constraints.(pid, t, queen_constraints)
+            t
         end
-
-        queen_constraints.(pid, variables, queen_constraints)
 
         pid |> Aruspex.label
         state = pid |> Aruspex.get_state
