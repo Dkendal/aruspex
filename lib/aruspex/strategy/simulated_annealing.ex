@@ -36,7 +36,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
     |> label(0)
   end
 
-  def label(%{cost: 0} = s, k), do: s
+  def label(%{cost: 0} = s, _), do: s
   def label(s, @k_max), do: s
 
   def label(s, k) do
@@ -61,7 +61,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   defp neighbour(state) do
     key = state.variables
           |> Dict.to_list
-          |> Enum.reject(fn {k,v} -> v.cost == 0 end)
+          |> Enum.reject(fn {_,v} -> v.cost == 0 end)
           |> Dict.keys
           |> take_random
 
