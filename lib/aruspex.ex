@@ -12,7 +12,8 @@ defmodule Aruspex do
   end
 
   defmodule State do
-    defstruct constraints: [], variables: %{}, cost: 0
+    defstruct constraints: [], variables: %{}, cost: 0,
+      options: %{strategy: Aruspex.SimulatedAnnealing}
   end
 
   defstart start_link, gen_server_opts: :runtime do
@@ -37,8 +38,13 @@ defmodule Aruspex do
     |> new_state
   end
 
+  defcast set_strategy(strategy), state: state do
+    put_in(state.options.strategy, strategy)
+    |> new_state
+  end
+
   defcast label(), state: state, from: from, timeout: :infinity do
-    Aruspex.SimulatedAnnealing.label(state)
+    state.options.strategy.label(state)
     |> new_state
   end
 

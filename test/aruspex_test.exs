@@ -1,5 +1,5 @@
 defmodule QueenTest do
-  defmacro run queens do
+  defmacro run strategy, queens do
     quote do
       @tag timeout: 100000
       test "#{unquote queens} queens" do
@@ -7,6 +7,7 @@ defmodule QueenTest do
 
         {:ok, pid} = Aruspex.start_link
 
+        pid |> Aruspex.set_strategy unquote(strategy)
         pid |> Aruspex.variables(variables)
 
         for v <- variables do
@@ -39,9 +40,6 @@ end
 
 defmodule AruspexTest do
   use ExUnit.Case, async: true
-  require QueenTest
-
-  QueenTest.run 4
 
   test "compute_cost/1" do
     {:ok, pid} = Aruspex.start_link
@@ -69,4 +67,11 @@ defmodule AruspexTest do
     assert 200 = state.variables.x.cost
     assert 300 = state.cost
   end
+end
+
+defmodule Aruspex.SimulatedAnnealingTest do
+  use ExUnit.Case, async: true
+  require QueenTest
+
+  QueenTest.run Aruspex.SimulatedAnnealing, 4
 end
