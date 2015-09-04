@@ -20,14 +20,6 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   @k_max 10000
   @cooling_constant 1/100
 
-  def restart(state) do
-    keys = Dict.keys state.variables
-    reduce(keys, state, fn(key, state) ->
-      value = take_random state.variables[key].domain
-      put_in state.variables[key].binding, value
-    end)
-  end
-
   def label(state, k\\-1)
 
   def label(state, -1) do
@@ -50,7 +42,15 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
     end
   end
 
-  def neighbour(state) do
+  defp restart(state) do
+    keys = Dict.keys state.variables
+    reduce(keys, state, fn(key, state) ->
+      value = take_random state.variables[key].domain
+      put_in state.variables[key].binding, value
+    end)
+  end
+
+  defp neighbour(state) do
     key = state.variables
           |> Dict.to_list
           |> Enum.reject(fn {k,v} -> v.cost == 0 end)
