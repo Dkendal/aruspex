@@ -73,5 +73,5 @@ defmodule Aruspex.Strategy.SimulatedAnnealingTest do
   use ExUnit.Case, async: true
   require QueenTest
 
-  QueenTest.run Aruspex.Strategy.SimulatedAnnealing, 4
+  QueenTest.run Aruspex.Strategy.SimulatedAnnealing, 20
 end

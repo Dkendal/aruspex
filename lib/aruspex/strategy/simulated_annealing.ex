@@ -25,8 +25,8 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   """
   @behaviour Aruspex.Strategy
   @initial_temp 1
-  @k_max 10000
-  @cooling_constant 1/100
+  @k_max 1000
+  @cooling_constant 40
 
   def label(state, k\\-1)
 
