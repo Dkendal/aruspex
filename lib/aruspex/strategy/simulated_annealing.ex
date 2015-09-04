@@ -77,7 +77,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
 
   defp acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
   defp acceptance_probability(e, e_p, temp) do
-    :math.exp(-(e_p - e))
+    :math.exp(-(e_p - e)/temp)
   end
 
   defp take_random(list) do
