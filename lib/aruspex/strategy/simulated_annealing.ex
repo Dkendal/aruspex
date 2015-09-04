@@ -9,11 +9,12 @@
 
 # s0 :: initial state
 # kmax :: maximum steps
-defmodule Aruspex.SimulatedAnnealing do
+defmodule Aruspex.Strategy.SimulatedAnnealing do
   import Enum, only: [reduce: 3]
   import Aruspex, only: [compute_cost: 1]
-
   use PatternTap
+
+  @behaviour Aruspex.Strategy
 
   @initial_temp 1
   @k_max 10000
