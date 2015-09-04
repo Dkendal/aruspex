@@ -1,9 +1,6 @@
 defmodule Aruspex do
   import Enum, only: [reduce: 3]
-
   use ExActor.GenServer
-  use PatternTap
-  use Exyz
 
   defmodule Var do
     defstruct binding: nil, constraints: [], domain: [], cost: 0
