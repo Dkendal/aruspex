@@ -1,21 +1,29 @@
-# https://en.wikipedia.org/wiki/Simulated_annealing
-# Let s = s0
-# For k = 0 through kmax (exclusive):
-#     T ← temperature(k/kmax)
-#     Pick a random neighbour, snew ← neighbour(s)
-#     If P(E(s), E(snew), T) > random(0, 1), move to the new state:
-#         s ← snew
-# Output: the final state s
-
-# s0 :: initial state
-# kmax :: maximum steps
 defmodule Aruspex.Strategy.SimulatedAnnealing do
   import Enum, only: [reduce: 3]
   import Aruspex, only: [compute_cost: 1]
   use PatternTap
 
-  @behaviour Aruspex.Strategy
+  @moduledoc """
+  Implementation or simulated annealing strategy for Aruspex solver.
 
+  Good at finding okay, solutions quickly in large problem spaces - not so good
+  at finding optimal solutions.
+
+  More info on [wikipedia](https://en.wikipedia.org/wiki/Simulated_annealing).
+
+  Pseudo-code algorithm:
+      Let s = s0
+      For k = 0 through kmax (exclusive):
+      T ← temperature(k/kmax)
+      Pick a random neighbour, snew ← neighbour(s)
+      If P(E(s), E(snew), T) > random(0, 1), move to the new state:
+      s ← snew
+      Output: the final state s
+
+      s0 :: initial state
+      kmax :: maximum steps
+  """
+  @behaviour Aruspex.Strategy
   @initial_temp 1
   @k_max 10000
   @cooling_constant 1/100
