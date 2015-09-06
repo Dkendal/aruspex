@@ -10,7 +10,7 @@ defmodule Aruspex do
 
   defmodule State do
     defstruct constraints: [], variables: %{}, cost: 0,
-      options: %{strategy: Aruspex.SimulatedAnnealing}
+      options: %{strategy: Aruspex.Strategy.SimulatedAnnealing}
   end
 
   defstart start_link, gen_server_opts: :runtime do
