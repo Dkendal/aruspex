@@ -21,11 +21,6 @@ defmodule Aruspex do
 
   @doc """
   Adds a constrained variable v, with domain d, to the problem.
-
-  ## E.g.
-    iex(1)> {:ok, pid} = Aruspex.start_link
-    iex(2)> Aruspex.variable pid, :x, 1..10
-    :x
   """
   @spec variable(pid, var, domain) :: var
   defcall variable(v, d), state: state do
