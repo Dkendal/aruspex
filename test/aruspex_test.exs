@@ -1,20 +1,21 @@
 defmodule QueenTest do
   use Aruspex.Constraint
 
+  alias Aruspex, as: A
+
   defmacro run strategy, queens do
     quote do
       @tag timeout: 100000
       test "#{unquote queens} queens" do
-        variables = :lists.seq(1, unquote queens)
+        n = unquote queens
+        strategy = unquote strategy
 
-        {:ok, pid} = Aruspex.start_link
+        {:ok, pid} = A.start_link
 
-        pid |> Aruspex.set_strategy unquote(strategy)
-        pid |> Aruspex.variables(variables)
+        for x <- 1..n, do:
+          A.variable(pid, x, (for y <- 1..n, do: {x, y}))
 
-        for v <- variables do
-          pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
-        end
+        A.set_strategy pid, strategy
 
         for_all pid, fn
           (s, s) -> 1
@@ -25,8 +26,8 @@ defmodule QueenTest do
           (_, _) -> 0
         end
 
-        pid |> Aruspex.label
-        state = pid |> Aruspex.get_state
+        pid |> A.label
+        state = pid |> A.get_state
 
         assert unquote((queens * queens - queens) / 2) ==
           length state.constraints
@@ -39,11 +40,15 @@ end
 
 defmodule AruspexTest do
   use ExUnit.Case, async: true
+  doctest Aruspex
 
   test "compute_cost/1" do
+    variables = [:x, :y]
+
     {:ok, pid} = Aruspex.start_link
-    pid |> Aruspex.variables([:x, :y])
-    pid |> Aruspex.domain([:x, :y], [1])
+
+    for v <- variables, do: Aruspex.variable(pid, v, [1])
+
     pid |> Aruspex.constraint([:x], fn
       1 -> 100
       _ -> flunk "unreachable"

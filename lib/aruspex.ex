@@ -2,9 +2,12 @@ defmodule Aruspex do
   import Enum, only: [reduce: 3]
   use ExActor.GenServer
 
+  @type var :: any
+  @type domain :: Enum.t
+
   defmodule Var do
+    @type t :: %Var{binding: any, domain: Aruspex.domain }
     defstruct binding: nil, domain: [], cost: 0
-    @type t :: %Var{binding: any, domain: Enum.t }
   end
 
   defmodule State do
@@ -16,14 +19,18 @@ defmodule Aruspex do
     initial_state %State{}
   end
 
-  defcast variables(variables), state: state do
-    reduce(variables, state, &put_in(&2.variables[&1], %Var{}))
-    |> new_state
-  end
+  @doc """
+  Adds a constrained variable v, with domain d, to the problem.
 
-  defcast domain(variables, domain), state: state do
-    reduce(variables, state, &put_in(&2.variables[&1].domain, domain))
-    |> new_state
+  ## E.g.
+    iex(1)> {:ok, pid} = Aruspex.start_link
+    iex(2)> Aruspex.variable pid, :x, 1..10
+    :x
+  """
+  @spec variable(pid, var, domain) :: var
+  defcall variable(v, d), state: state do
+    put_in(state.variables[v], %Var{domain: d})
+    |> set_and_reply v
   end
 
   # v: [variable], c: constraint
