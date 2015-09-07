@@ -66,6 +66,8 @@ defmodule AruspexTest do
     state = put_in state.variables.x.binding, 1
     state = put_in state.variables.y.binding, 1
 
+    Aruspex.stop pid
+
     state = Aruspex.compute_cost(state)
 
     assert 200 = state.variables.x.cost

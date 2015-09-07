@@ -19,6 +19,11 @@ defmodule Aruspex do
     initial_state %State{}
   end
 
+  @doc "Stops the server."
+  defcast stop, state: state do
+    stop_server :normal
+  end
+
   @doc """
   Adds a constrained variable v, with domain d, to the problem.
   """
