@@ -3,8 +3,7 @@ defmodule Aruspex do
   use ExActor.GenServer
 
   defmodule Var do
-    defstruct binding: nil, constraints: [], domain: [], cost: 0
-    @type constraint :: ((any, any) -> boolean)
+    defstruct binding: nil, domain: [], cost: 0
     @type t :: %Var{binding: any, domain: Enum.t }
   end
 
