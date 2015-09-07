@@ -23,8 +23,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealingTest do
       (_, _) -> 0
     end
 
-    A.label pid
-    state = A.get_state pid
+    state = A.find_solution pid
 
     assert (n * n - n) / 2 == length state.constraints
     assert 0 == state.cost

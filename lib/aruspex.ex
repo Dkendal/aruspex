@@ -1,6 +1,7 @@
 defmodule Aruspex do
   import Enum, only: [reduce: 3]
   use ExActor.GenServer
+  use PatternTap
 
   @type var :: any
   @type domain :: Enum.t
@@ -42,13 +43,13 @@ defmodule Aruspex do
     |> set_and_reply :ok
   end
 
-  defcast set_strategy(strategy), state: state do
-    put_in(state.options.strategy, strategy)
-    |> new_state
+  defcall find_solution(), state: state do
+    state.options.strategy.label(state)
+    |> tap s ~> set_and_reply s, s
   end
 
-  defcast label(), state: state, from: from do
-    state.options.strategy.label(state)
+  defcast set_strategy(strategy), state: state do
+    put_in(state.options.strategy, strategy)
     |> new_state
   end
 
