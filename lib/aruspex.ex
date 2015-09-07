@@ -33,10 +33,13 @@ defmodule Aruspex do
     |> set_and_reply v
   end
 
-  # v: [variable], c: constraint
-  defcast constraint(v, c), state: state do
+  @doc """
+  Defines a linear constraint on all variables v, c must a function with an
+  arity that matches the number of variables.
+  """
+  defcall constraint(v, c), state: state, when: is_function(c, length(v)) do
     update_in(state.constraints, & [{v,c}|&1])
-    |> new_state
+    |> set_and_reply :ok
   end
 
   defcast set_strategy(strategy), state: state do

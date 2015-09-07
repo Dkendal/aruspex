@@ -49,25 +49,26 @@ defmodule AruspexTest do
 
     for v <- variables, do: Aruspex.variable(pid, v, [1])
 
-    pid |> Aruspex.constraint([:x], fn
+    :ok = pid |> Aruspex.constraint([:x], fn
       1 -> 100
       _ -> flunk "unreachable"
     end)
-    pid |> Aruspex.constraint([:y], fn
+
+    :ok = pid |> Aruspex.constraint([:y], fn
       1 -> 100
       _ -> flunk "unreachable"
     end)
-    pid |> Aruspex.constraint([:y, :x], fn
+
+    :ok = pid |> Aruspex.constraint([:y, :x], fn
       s, s -> 100
       _, _ -> flunk "unreachable"
     end)
 
     state = :sys.get_state(pid)
-    state = put_in state.variables.x.binding, 1
-    state = put_in state.variables.y.binding, 1
-
     Aruspex.stop pid
 
+    state = put_in state.variables.x.binding, 1
+    state = put_in state.variables.y.binding, 1
     state = Aruspex.compute_cost(state)
 
     assert 200 = state.variables.x.cost
