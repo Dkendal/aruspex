@@ -35,9 +35,7 @@ defmodule Aruspex do
 
   # v: [variable], c: constraint
   defcast constraint(v, c), state: state do
-    update_in(state.constraints, fn constraints ->
-      [{v, c}| constraints]
-    end)
+    update_in(state.constraints, & [{v,c}|&1])
     |> new_state
   end
 
