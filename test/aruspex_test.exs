@@ -1,4 +1,6 @@
 defmodule QueenTest do
+  use Aruspex.Constraint
+
   defmacro run strategy, queens do
     quote do
       @tag timeout: 100000
@@ -14,24 +16,21 @@ defmodule QueenTest do
           pid |> Aruspex.domain([v], (for i <- 1..length(variables), do: {v,i}))
         end
 
-        Enum.reduce variables, variables, fn
-          (_, [_]) -> :ok
-          (_, [x|t]) ->
-            for y <- t do
-              pid |> Aruspex.constraint [x, y], fn
-                (s, s) -> 1
-                ({s, _x2}, {s, _y2}) -> 1
-                ({_x1, s}, {_y1, s}) -> 1
-                ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> 1
-                ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> 1
-                (_, _) -> 0
-              end
-            end
-            t
+        for_all pid, fn
+          (s, s) -> 1
+          ({s, _x2}, {s, _y2}) -> 1
+          ({_x1, s}, {_y1, s}) -> 1
+          ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> 1
+          ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> 1
+          (_, _) -> 0
         end
 
         pid |> Aruspex.label
         state = pid |> Aruspex.get_state
+
+        assert unquote((queens * queens - queens) / 2) ==
+          length state.constraints
+
         assert 0 == state.cost
       end
     end
