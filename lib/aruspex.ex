@@ -48,6 +48,12 @@ defmodule Aruspex do
     reply state
   end
 
+  defcall get_terms(), state: state do
+    state
+    |> terms
+    |> reply
+  end
+
   def compute_cost state do
     zero_cost(state)
     |> compute_cost(state.constraints)
