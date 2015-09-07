@@ -39,12 +39,12 @@ defmodule Aruspex do
     |> new_state
   end
 
-  defcast label(), state: state, from: from, timeout: :infinity do
+  defcast label(), state: state, from: from do
     state.options.strategy.label(state)
     |> new_state
   end
 
-  defcall get_state(), state: state do
+  defcall get_state(), state: state, timeout: :infinity do
     reply state
   end
 
