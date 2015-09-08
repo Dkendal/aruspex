@@ -55,6 +55,10 @@ defmodule Aruspex do
     |> set_and_reply :ok
   end
 
+  def post(pid, {:constraint, v, c}) do
+    post pid, v, c
+  end
+
   @doc """
   Attemps to find the first solution to the problem. Uses the default search
   if one was not defined by set_search_strategy. Returns the solution or raises an error if non is found or the search times out.

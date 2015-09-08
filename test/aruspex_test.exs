@@ -1,5 +1,6 @@
 defmodule AruspexTest do
   use ExUnit.Case, async: true
+  use Aruspex.Constraint
   doctest Aruspex
 
   test "compute_cost/1" do
@@ -8,6 +9,14 @@ defmodule AruspexTest do
     {:ok, pid} = Aruspex.start_link
 
     for v <- variables, do: Aruspex.variable(pid, v, [1])
+
+    x = :x
+    expr = quote do: linear([:x], ^:x == 1 )
+    Macro.expand_once(expr, __ENV__)
+    |> Macro.to_string
+    |> IO.puts
+
+    :ok = Aruspex.post pid, linear([:x], ^:x == 1)
 
     :ok = pid |> Aruspex.post([:x], fn
       1 -> 100
