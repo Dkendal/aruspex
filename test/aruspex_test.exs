@@ -9,17 +9,17 @@ defmodule AruspexTest do
 
     for v <- variables, do: Aruspex.variable(pid, v, [1])
 
-    :ok = pid |> Aruspex.constraint([:x], fn
+    :ok = pid |> Aruspex.post([:x], fn
       1 -> 100
       _ -> flunk "unreachable"
     end)
 
-    :ok = pid |> Aruspex.constraint([:y], fn
+    :ok = pid |> Aruspex.post([:y], fn
       1 -> 100
       _ -> flunk "unreachable"
     end)
 
-    :ok = pid |> Aruspex.constraint([:y, :x], fn
+    :ok = pid |> Aruspex.post([:y, :x], fn
       s, s -> 100
       _, _ -> flunk "unreachable"
     end)

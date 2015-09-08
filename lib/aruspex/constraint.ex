@@ -1,5 +1,5 @@
 defmodule Aruspex.Constraint do
-  import Aruspex, only: [get_terms: 1, constraint: 3]
+  import Aruspex, only: [get_terms: 1, post: 3]
 
   @moddoc """
   Contains helpers and macros for creating constraints.
@@ -19,7 +19,7 @@ defmodule Aruspex.Constraint do
     domain = domain |> Enum.sort
 
     for x <- domain, y <- domain, y < x do
-      constraint pid, [x, y], f
+      post pid, [x, y], f
     end
   end
 end
