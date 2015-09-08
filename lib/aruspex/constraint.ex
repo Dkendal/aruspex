@@ -6,6 +6,8 @@ defmodule Aruspex.Constraint do
   Contains helpers and macros for creating constraints.
   """
 
+  @hard 1.0e9
+
   defmacro __using__ _opts do
     quote do
       import unquote(__MODULE__)
@@ -13,27 +15,34 @@ defmodule Aruspex.Constraint do
     end
   end
 
-  defmacro linear v, f do
-    var_dict = for x <- v do
-      {x, Macro.var(:"var_#{x}", __MODULE__)}
+  defmacro linear constraint, cost \\ @hard do
+    v = fn
+      term when tuple_size(term) == 3 -> term
+      name -> Macro.var(:"var_#{name}", __MODULE__)
     end
-    variables = Keyword.values var_dict
 
-    # replace matched variables in function body with bound variables
-    {body, _var_dict} = Macro.postwalk f, var_dict, fn
-      {:^, _, [sym]}, v -> {Dict.fetch!(v, sym), v}
-      t, v -> {t, v}
+    # replace matched bound_vars in function body with bound bound_vars
+    {expr, dictionary} = Macro.postwalk constraint, %{}, fn
+      # matches any variable `^var`
+      {:^, _, [term]}, dict ->
+        {v.(term),
+          put_in(dict, [term], v.(term))}
+      t, dict ->
+        {t, dict}
     end
+
+    terms = Dict.keys dictionary
+    bound_vars = Dict.values dictionary
 
     constraint = quote do
       fn
-        unquote_splicing(variables) when unquote(body) -> 0
-        unquote_splicing(variables) -> 1
+        unquote_splicing(bound_vars) when unquote(expr) -> 0
+        unquote_splicing(bound_vars) -> unquote(cost)
       end
     end
 
     result = quote do
-      {:constraint, (unquote v), (unquote constraint)}
+      {:constraint, (unquote terms), (unquote constraint)}
     end
   end
 

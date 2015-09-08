@@ -10,28 +10,9 @@ defmodule AruspexTest do
 
     for v <- variables, do: Aruspex.variable(pid, v, [1])
 
-    x = :x
-    expr = quote do: linear([:x], ^:x == 1 )
-    Macro.expand_once(expr, __ENV__)
-    |> Macro.to_string
-    |> IO.puts
-
-    :ok = Aruspex.post pid, linear([:x], ^:x == 1)
-
-    :ok = pid |> Aruspex.post([:x], fn
-      1 -> 100
-      _ -> flunk "unreachable"
-    end)
-
-    :ok = pid |> Aruspex.post([:y], fn
-      1 -> 100
-      _ -> flunk "unreachable"
-    end)
-
-    :ok = pid |> Aruspex.post([:y, :x], fn
-      s, s -> 100
-      _, _ -> flunk "unreachable"
-    end)
+    :ok = Aruspex.post pid, linear(^:x != 1)
+    :ok = Aruspex.post pid, linear(^:y != 1)
+    :ok = Aruspex.post pid, linear(^:y != ^:x)
 
     state = :sys.get_state(pid)
     Aruspex.stop pid
@@ -40,7 +21,7 @@ defmodule AruspexTest do
     state = put_in state.variables.y.binding, 1
     state = Aruspex.compute_cost(state)
 
-    assert 200 = state.variables.x.cost
-    assert 300 = state.cost
+    assert 1.0e9 * 2 == state.variables.x.cost
+    assert 1.0e9 * 3 = state.cost
   end
 end
