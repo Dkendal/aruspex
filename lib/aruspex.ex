@@ -51,7 +51,7 @@ defmodule Aruspex do
 
   @doc """
   Attemps to find the first solution to the problem. Uses the default search
-  if one was not defined by set_strategy. Returns the solution or raises an error if non is found or the search times out.
+  if one was not defined by set_search_strategy. Returns the solution or raises an error if non is found or the search times out.
   """
   @spec find_solution(pid) :: [{var, any}]
   defcall find_solution(), state: state do
@@ -60,8 +60,8 @@ defmodule Aruspex do
   end
 
   @doc "Sets the strategy to be used by the searcher"
-  @spec set_strategy(pid, strategy) :: :ok
-  defcall set_strategy(strategy), state: state do
+  @spec set_search_strategy(pid, strategy) :: :ok
+  defcall set_search_strategy(strategy), state: state do
     put_in(state.options.strategy, strategy)
     |> set_and_reply :ok
   end

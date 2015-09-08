@@ -6,13 +6,12 @@ defmodule Aruspex.Strategy.SimulatedAnnealingTest do
   @tag timeout: 100000
   test "4 queens" do
     n = 4
-    strategy = :simulated_annealing
 
     {:ok, pid} = A.start_link
 
     for x <- 1..n, do:
     A.variable(pid, x, (for y <- 1..n, do: {x, y}))
-    :ok = A.set_strategy pid, Aruspex.Strategy.SimulatedAnnealing
+    :ok = Aruspex.set_search_strategy pid, Aruspex.Strategy.SimulatedAnnealing
 
     for_all pid, fn
       (s, s) -> 1
