@@ -64,7 +64,12 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
           |> Enum.reject(fn {_,v} -> v.cost == 0 end)
           |> Dict.keys
           |> take_random
+    decide(state, key)
+  end
 
+  defp decide(state, nil),
+    do: raise "Couldn't yield a neighbor state, key was nil"
+  defp decide(state, key) do
     state.variables[key]
     |> tap(v ~> v.domain -- [v.binding])
     |> take_random
