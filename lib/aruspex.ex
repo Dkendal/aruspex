@@ -18,11 +18,13 @@ defmodule Aruspex do
       options: %{strategy: Aruspex.Strategy.SimulatedAnnealing}
   end
 
+  @spec start_link(Map.t) :: {:ok, pid}
   defstart start_link, gen_server_opts: :runtime do
     initial_state %State{}
   end
 
   @doc "Stops the server."
+  @spec stop(pid) :: :ok
   defcast stop, state: state do
     stop_server :normal
   end
