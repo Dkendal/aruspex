@@ -3,6 +3,12 @@ defmodule Aruspex do
   use ExActor.GenServer
   use PatternTap
 
+  @moduledoc """
+  Aruspex Solver
+
+  Aruspex is a generic, mostly JSR-331 compliant cp solver which can solve
+  typical linear constraint problems.
+  """
   @type var :: any
   @type cost :: number
   @type domain :: Enum.t
