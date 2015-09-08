@@ -4,7 +4,9 @@ defmodule Aruspex do
   use PatternTap
 
   @type var :: any
+  @type cost :: number
   @type domain :: Enum.t
+  @type constraint :: (... -> cost)
 
   defmodule Var do
     @type t :: %Var{binding: any, domain: Aruspex.domain }
@@ -38,6 +40,7 @@ defmodule Aruspex do
   Defines a linear constraint on all variables v, c must a function with an
   arity that matches the number of variables.
   """
+  @spec constraint(pid, [var], constraint) :: :ok
   defcall constraint(v, c), state: state, when: is_function(c, length(v)) do
     update_in(state.constraints, & [{v,c}|&1])
     |> set_and_reply :ok
