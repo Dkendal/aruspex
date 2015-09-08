@@ -12,7 +12,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealingTest do
 
     for x <- 1..n, do:
     A.variable(pid, x, (for y <- 1..n, do: {x, y}))
-    A.set_strategy pid, Aruspex.Strategy.SimulatedAnnealing
+    :ok = A.set_strategy pid, Aruspex.Strategy.SimulatedAnnealing
 
     for_all pid, fn
       (s, s) -> 1

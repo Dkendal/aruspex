@@ -6,6 +6,7 @@ defmodule Aruspex do
   @type var :: any
   @type cost :: number
   @type domain :: Enum.t
+  @type strategy :: Aruspex.Strategy.t
   @type constraint :: (... -> cost)
 
   defmodule Var do
@@ -48,14 +49,21 @@ defmodule Aruspex do
     |> set_and_reply :ok
   end
 
+  @doc """
+  Attemps to find the first solution to the problem. Uses the default search
+  if one was not defined by set_strategy. Returns the solution or raises an error if non is found or the search times out.
+  """
+  @spec find_solution(pid) :: [{var, any}]
   defcall find_solution(), state: state do
     state.options.strategy.label(state)
     |> tap s ~> set_and_reply s, bound_variables(s)
   end
 
-  defcast set_strategy(strategy), state: state do
+  @doc "Sets the strategy to be used by the searcher"
+  @spec set_strategy(pid, strategy) :: :ok
+  defcall set_strategy(strategy), state: state do
     put_in(state.options.strategy, strategy)
-    |> new_state
+    |> set_and_reply :ok
   end
 
   defcall get_terms(), state: state do
