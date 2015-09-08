@@ -45,16 +45,12 @@ defmodule Aruspex do
 
   defcall find_solution(), state: state do
     state.options.strategy.label(state)
-    |> tap s ~> set_and_reply s, s
+    |> tap s ~> set_and_reply s, bound_variables(s)
   end
 
   defcast set_strategy(strategy), state: state do
     put_in(state.options.strategy, strategy)
     |> new_state
-  end
-
-  defcall get_state(), state: state, timeout: :infinity do
-    reply state
   end
 
   defcall get_terms(), state: state do
@@ -120,5 +116,9 @@ defmodule Aruspex do
 
   defp put_cost state, v, cost do
     put_in(state.variables[v].cost, cost)
+  end
+
+  defp bound_variables state do
+    for {k, v} <- state.variables, do: {k, v.binding}
   end
 end

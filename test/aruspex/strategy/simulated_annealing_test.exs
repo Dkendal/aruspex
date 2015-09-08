@@ -23,9 +23,19 @@ defmodule Aruspex.Strategy.SimulatedAnnealingTest do
       (_, _) -> 0
     end
 
-    state = A.find_solution pid
+    solution = A.find_solution pid
 
-    assert (n * n - n) / 2 == length state.constraints
-    assert 0 == state.cost
+    assert [{1,w}, {2,x}, {3,y}, {4,z}] = solution
+
+    variables = [w, x, y, z]
+    expected = [{1, 3}, {2, 1}, {3, 4}, {4, 2}]
+
+    assert variables == expected or
+           variables == transpose(expected)
+  end
+
+  defp transpose a do
+    (for {x,y} <- a, do: {y,x})
+    |> Enum.sort
   end
 end
