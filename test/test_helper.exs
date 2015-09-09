@@ -3,9 +3,12 @@ defmodule Aruspex.Matchers do
   import IO.ANSI
   alias Macro, as: M
 
-  defp generate macro, expected do
-    [actual, expected] = [mx_str(macro), M.to_string(expected)]
-    expected == actual
+  def to_generate actual, expected do
+    assert generate(actual, expected), generate_msg(actual, expected)
+  end
+
+  defp generate actual, expected do
+    mx_str(actual) == M.to_string(expected)
   end
 
   defp generate_msg actual, expected do
@@ -19,10 +22,6 @@ defmodule Aruspex.Matchers do
     #{mx_str actual}
     #{reset}
     """
-  end
-
-  def to_generate actual, expected do
-    assert generate(actual, expected), generate_msg(actual, expected)
   end
 
   defp mx_str(macro) do
