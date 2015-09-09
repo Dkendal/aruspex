@@ -10,7 +10,7 @@ defmodule Aruspex.Matchers do
 
   defp generate_msg actual, expected do
     """
-    #{white}Expected macro #{red}#{M.to_string actual}#{white} to generate
+    #{white}Expected macro #{red}#{M.to_string actual}#{white} to generate:
     #{red}
     #{M.to_string expected}
     #{white}
