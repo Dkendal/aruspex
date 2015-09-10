@@ -5,4 +5,4 @@
   "exyz": {:hex, :exyz, "1.0.0"},
   "meck": {:hex, :meck, "0.8.3"},
   "pattern_tap": {:hex, :pattern_tap, "0.2.1"},
-  "pavlov": {:hex, :pavlov, "0.2.3"}}
+  "pavlov": {:git, "git://github.com/sproutapp/pavlov.git", "41756a257a5eba92b9ae674406802ed8ede1a911", [branch: "master"]}}
