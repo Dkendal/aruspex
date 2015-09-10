@@ -16,23 +16,28 @@ defmodule Aruspex.Constraint do
   end
 
   defmacro linear constraint, cost \\ @hard do
+    # define a variable that will appear in the body of a constraint
+    # all generated variables should be hygenic
     v = fn
-      term when tuple_size(term) == 3 -> term
-      name -> Macro.var(:"var_#{name}", __MODULE__)
+      # bound variable
+      {t, _, __CALLER__} ->
+        {t, [], __MODULE__}
+      # interpolated variable
+      name ->
+        Macro.var(:"var_#{name}", __MODULE__)
     end
 
     # replace matched bound_vars in function body with bound bound_vars
     {expr, dictionary} = Macro.postwalk constraint, %{}, fn
-      # matches any variable `^var`
       {:^, _, [term]}, dict ->
-        {v.(term),
-          put_in(dict, [term], v.(term))}
+        {v.(term), put_in(dict, [term], v.(term))}
+
       t, dict ->
         {t, dict}
     end
 
     terms = Dict.keys dictionary
-    bound_vars = Dict.values dictionary
+    bound_vars = Dict.values(dictionary)
 
     constraint = quote do
       fn
