@@ -16,4 +16,12 @@ defmodule Aruspex.State do
   def terms state do
     Dict.keys state.variables
   end
+
+  defimpl Inspect, for: __MODULE__ do
+    import Inspect.Algebra
+
+    def inspect state, opts do
+      concat ["#Aruspex.State<",to_doc(state.variables, opts), ">"]
+    end
+  end
 end
