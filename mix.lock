@@ -1,8 +1,8 @@
-%{"dbg": {:git, "git://github.com/fishcakez/dbg.git", "8c3ec3eca04cd07bc9a90a195561c8bbd9e5a639", []},
+%{"dbg": {:git, "https://github.com/fishcakez/dbg.git", "8c3ec3eca04cd07bc9a90a195561c8bbd9e5a639", []},
   "exactor": {:hex, :exactor, "2.1.2"},
   "exprintf": {:hex, :exprintf, "0.1.6"},
   "exprof": {:hex, :exprof, "0.2.0"},
   "exyz": {:hex, :exyz, "1.0.0"},
   "meck": {:hex, :meck, "0.8.3"},
   "pattern_tap": {:hex, :pattern_tap, "0.2.1"},
-  "pavlov": {:git, "git://github.com/sproutapp/pavlov.git", "41756a257a5eba92b9ae674406802ed8ede1a911", [branch: "master"]}}
+  "pavlov": {:git, "https://github.com/sproutapp/pavlov.git", "41756a257a5eba92b9ae674406802ed8ede1a911", [branch: "master"]}}
