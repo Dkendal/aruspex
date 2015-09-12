@@ -53,7 +53,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   defp restart(state) do
     keys = Dict.keys state.variables
     reduce(keys, state, fn(key, state) ->
-      value = take_random state.variables[key].domain
+      value = Enum.random(state.variables[key].domain)
       put_in state.variables[key].binding, value
     end)
   end
@@ -63,7 +63,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
           |> Dict.to_list
           |> Enum.reject(fn {_,v} -> v.cost == 0 end)
           |> Dict.keys
-          |> take_random
+          |> Enum.random
     decide(state, key)
   end
 
@@ -72,7 +72,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   defp decide(state, key) do
     state.variables[key]
     |> tap(v ~> v.domain -- [v.binding])
-    |> take_random
+    |> Enum.random
     |> tap(v ~> put_in state.variables[key].binding, v)
   end
 
@@ -83,11 +83,5 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   defp acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
   defp acceptance_probability(e, e_p, temp) do
     :math.exp(-(e_p - e)/temp)
-  end
-
-  defp take_random(list) do
-    list
-    |> Enum.shuffle
-    |> List.first
   end
 end
