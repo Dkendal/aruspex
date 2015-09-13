@@ -61,7 +61,6 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   defp neighbour(state) do
     key = state.variables
           |> Dict.to_list
-          |> Enum.reject(fn {_,v} -> v.cost == 0 end)
           |> Dict.keys
           |> Enum.random
     decide(state, key)
