@@ -8,8 +8,6 @@ defmodule Aruspex.Matchers do
   end
 
   defp generate actual, expected do
-    Code.eval_quoted actual # execute the macro to make sure it is defined
-
     mx_str(actual) == M.to_string(expected)
   end
 
