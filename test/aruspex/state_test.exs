@@ -1,10 +1,9 @@
-defmodule AruspexTest do
+defmodule Aruspex.StateTest do
   use Aruspex.Case
-  use Aruspex.Constraint
 
   describe "compute_cost/1" do
     subject do
-      Aruspex.compute_cost(state)
+      Aruspex.State.compute_cost(state)
     end
 
     let :variables, do: [:x, :y]
@@ -16,9 +15,9 @@ defmodule AruspexTest do
 
       for v <- variables, do: Aruspex.variable(pid, v, [1])
 
+      :ok = Aruspex.post pid, linear(^:y != ^:x)
       :ok = Aruspex.post pid, linear(^:x != 1)
       :ok = Aruspex.post pid, linear(^:y != 1)
-      :ok = Aruspex.post pid, linear(^:y != ^:x)
 
       state = :sys.get_state(pid)
       Aruspex.stop pid
@@ -32,3 +31,5 @@ defmodule AruspexTest do
     end
   end
 end
+
+

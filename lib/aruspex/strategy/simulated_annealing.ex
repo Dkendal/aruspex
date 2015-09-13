@@ -1,6 +1,6 @@
 defmodule Aruspex.Strategy.SimulatedAnnealing do
   import Enum, only: [reduce: 3]
-  import Aruspex, only: [compute_cost: 1]
+  import Aruspex.State, only: [compute_cost: 1]
   use PatternTap
 
   @moduledoc """
