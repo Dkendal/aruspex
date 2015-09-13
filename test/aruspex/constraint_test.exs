@@ -7,30 +7,34 @@ defmodule Aruspex.ConstraintTest do
       linear(^:x == 1)
     end
 
+    let :function do
+      use Aruspex.Constraint
+      constraint(subject, :function)
+    end
+
+    let :variables do
+      use Aruspex.Constraint
+      constraint(subject, :variables)
+    end
+
     it "extracts the pariticipating variables" do
       use Aruspex.Constraint
-      expect(constraint subject, :variables) |> to_eq [:x]
+      assert variables == [:x]
     end
 
     describe "generated constraint function" do
-      let :function do
-        use Aruspex.Constraint
-        constraint(subject, :function)
-      end
-
       it "has a constraint function with arity matching number of vars" do
-        use Aruspex.Constraint
-        expect(function)
+        function
         |> is_function(1)
-        |> to_be_true
+        |> assert
       end
 
       it "returns 0 when satisfied" do
-        expect(function.(1)) |> to_eq 0
+        assert function.(1) == 0
       end
 
       it "returns 1 when violated" do
-        expect(function.(0)) |> to_eq 1
+        assert function.(0) == 1
       end
     end
   end
