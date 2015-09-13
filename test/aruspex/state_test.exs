@@ -1,15 +1,10 @@
 defmodule Aruspex.StateTest do
-  use Aruspex.Case
+  use ExSpec, async: true
+  use Aruspex.Constraint
 
   describe "compute_cost/1" do
-    subject do
-      Aruspex.State.compute_cost(state)
-    end
-
-    let :variables, do: [:x, :y]
-
-    let :state do
-      use Aruspex.Constraint
+    setup do
+      variables = [:x, :y]
 
       {:ok, pid} = Aruspex.start_link
 
@@ -24,10 +19,14 @@ defmodule Aruspex.StateTest do
 
       state = put_in state.variables.x.binding, 1
       state = put_in state.variables.y.binding, 1
+
+      {:ok,
+        subject: Aruspex.State.compute_cost(state)}
     end
 
-    it "returns the cost, and an updated state" do
-      expect(subject.cost) |> to_eq 3
+
+    it "returns the cost, and an updated state", c do
+      assert c.subject.cost == 3
     end
   end
 end

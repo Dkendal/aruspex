@@ -30,8 +30,7 @@ defmodule Aruspex.Mixfile do
     [{:exactor, "~> 2.1.0"},
      {:pattern_tap, []},
      {:exyz, "~> 1.0.0"},
-     {:exprof, []},
-     {:pavlov, github: "sproutapp/pavlov", branch: "master", only: :test},
+     {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
      {:dbg, github: "fishcakez/dbg"}]
   end
 end
