@@ -40,5 +40,7 @@ defmodule Aruspex.Case do
   end
 end
 
+# load me in mix.exs instead
+Code.load_file("./test/strategy_test.exs")
 Pavlov.start()
 ExUnit.start()
