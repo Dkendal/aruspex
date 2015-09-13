@@ -18,38 +18,18 @@ defmodule Aruspex.Constraint do
   end
 
   defmacro linear constraint do
-    # define a variable that will appear in the body of a constraint
-    # all generated variables should be hygenic
-    v = fn
-      # bound variable
-      {t, _, __CALLER__} ->
-        {t, [], __MODULE__}
-      # interpolated variable
-      name ->
-        Macro.var(:"var_#{name}", __MODULE__)
-    end
+    cost = 1
 
-    # replace matched bound_vars in function body with bound bound_vars
-    {expr, dictionary} = Macro.postwalk constraint, %{}, fn
-      {:^, _, [term]}, dict ->
-        {v.(term), put_in(dict, [term], v.(term))}
+    {expr, substitutions} = Macro.postwalk constraint, %{},
+      &replace_bound_terms/2
 
-      t, dict ->
-        {t, dict}
-    end
+    terms = Dict.keys(substitutions)
+    bound_vars = Dict.values(substitutions)
 
-    terms = Dict.keys dictionary
-    bound_vars = Dict.values(dictionary)
-
-    constraint = quote do
-      fn
-        unquote_splicing(bound_vars) when unquote(expr) -> 0
-        unquote_splicing(bound_vars) -> 1
-      end
-    end
-
-    result = quote do
-      unquote(__MODULE__).constraint variables: unquote(terms), function: unquote(constraint)
+    quote do
+      unquote(__MODULE__).constraint(
+        variables: unquote(terms),
+        function: unquote(constraint_fun(bound_vars, expr, 1)))
     end
   end
 
@@ -62,6 +42,30 @@ defmodule Aruspex.Constraint do
 
     for x <- domain, y <- domain, y < x do
       post pid, [x, y], f
+    end
+  end
+
+  # define a variable that will appear in the body of a constraint
+  # if it's a variable than keep the name, but it should be module scoped
+  defp constraint_var({t, _, __CALLER__}), do: {t, [], __MODULE__}
+  defp constraint_var(name), do: Macro.var(:"var_#{name}", __MODULE__)
+
+
+  # replace any ^x variable with a variable and add it to the accumulator
+  defp replace_bound_terms {:^, _, [term]}, acc do
+    variable = constraint_var(term)
+    acc = put_in(acc, [term], variable)
+    {variable, acc}
+  end
+  # no-op
+  defp replace_bound_terms(t, dict), do: {t, dict}
+
+  defp constraint_fun bound_vars, expr, cost do
+    quote do
+      fn
+        unquote_splicing(bound_vars) when unquote(expr) -> 0
+        unquote_splicing(bound_vars) -> unquote(cost)
+      end
     end
   end
 end
