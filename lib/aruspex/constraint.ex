@@ -12,14 +12,19 @@ defmodule Aruspex.Constraint do
 
   defmacro __using__ _opts do
     quote do
-      import unquote(__MODULE__)
+      import unquote(__MODULE__), only: :macros
       require unquote(__MODULE__)
+
+      import unquote(__MODULE__).Common
+      require unquote(__MODULE__).Common
     end
   end
 
   defmacro linear constraint do
-    cost = 1
+    build_linear(constraint)
+  end
 
+  def build_linear constraint do
     {expr, substitutions} = Macro.postwalk constraint, %{},
       &replace_bound_terms/2
 
@@ -33,23 +38,14 @@ defmodule Aruspex.Constraint do
     end
   end
 
-  def for_all pid, f do
-    for_all pid, get_terms(pid), f
-  end
-
-  def for_all pid, domain, f do
-    domain = domain |> Enum.sort
-
-    for x <- domain, y <- domain, y < x do
-      post pid, [x, y], f
-    end
+  defp conjunct_clauses [a, b|t] do
+    conjunct_clauses [b|t], a
   end
 
   # define a variable that will appear in the body of a constraint
   # if it's a variable than keep the name, but it should be module scoped
   defp constraint_var({t, _, __CALLER__}), do: {t, [], __MODULE__}
   defp constraint_var(name), do: Macro.var(:"var_#{name}", __MODULE__)
-
 
   # replace any ^x variable with a variable and add it to the accumulator
   defp replace_bound_terms {:^, _, [term]}, acc do
