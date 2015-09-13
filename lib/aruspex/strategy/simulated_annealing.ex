@@ -70,7 +70,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
     do: raise "Couldn't yield a neighbor state, key was nil"
   defp decide(state, key) do
     state.variables[key]
-    |> tap(v ~> v.domain -- [v.binding])
+    |> tap(v ~> Enum.reject v.domain, & &1 == v.binding)
     |> Enum.random
     |> tap(v ~> put_in state.variables[key].binding, v)
   end
