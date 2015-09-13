@@ -1,6 +1,7 @@
 defmodule Aruspex.Server do
   use ExActor.GenServer
   use PatternTap
+  use Aruspex.Constraint
 
   alias Aruspex.State
   alias Aruspex.Var
@@ -42,7 +43,7 @@ defmodule Aruspex.Server do
     |> set_and_reply :ok
   end
 
-  def post(pid, {:constraint, v, c}) do
+  def post(pid, constraint(variables: v, function: c)) do
     post pid, v, c
   end
 

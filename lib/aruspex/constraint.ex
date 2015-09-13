@@ -1,12 +1,14 @@
 defmodule Aruspex.Constraint do
   import Aruspex, only: [get_terms: 1, post: 3]
   require Macro
+  require Record
+  import Record, only: :macros
 
   @moddoc """
   Contains helpers and macros for creating constraints.
   """
 
-  @hard 1.0e9
+  defrecord :constraint, variables: [], function: :undefined
 
   defmacro __using__ _opts do
     quote do
@@ -47,7 +49,7 @@ defmodule Aruspex.Constraint do
     end
 
     result = quote do
-      {:constraint, (unquote terms), (unquote constraint)}
+      unquote(__MODULE__).constraint variables: unquote(terms), function: unquote(constraint)
     end
   end
 

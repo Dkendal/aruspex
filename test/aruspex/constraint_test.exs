@@ -2,24 +2,21 @@ defmodule Aruspex.ConstraintTest do
   use Aruspex.Case
 
   describe "linear/2" do
-    let :macro do
+    let :subject do
       use Aruspex.Constraint
-      quote do: linear(^:x == 1)
+      linear(^:x == 1)
     end
 
-    let :code do
-      quote do
-        {:constraint, [:x], fn
-          var_x when var_x == 1 ->
-            0
-          var_x ->
-            1.0e9
-        end}
-      end
+    it "extracts the pariticipating variables" do
+      use Aruspex.Constraint
+      expect(constraint subject, :variables) |> to_eq [:x]
     end
 
-    it "generates the expected output" do
-      expect(macro) |> to_generate code
+    it "has a constraint function with arity matching number of vars" do
+      use Aruspex.Constraint
+      expect(constraint(subject, :function))
+      |> is_function(1)
+      |> to_be_true
     end
   end
 end
