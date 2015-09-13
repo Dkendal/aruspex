@@ -38,6 +38,13 @@ defmodule Aruspex.Constraint do
     end
   end
 
+  def test_constraint(c, binding) do
+    # this is temporary
+    binding = binding |> Dict.take(constraint(c, :variables)) |> Dict.values
+
+    :erlang.apply constraint(c, :function), binding
+  end
+
   defp conjunct_clauses [a, b|t] do
     conjunct_clauses [b|t], a
   end

@@ -37,14 +37,9 @@ defmodule Aruspex.Server do
   Defines a linear constraint on all variables v, c must a function with an
   arity that matches the number of variables.
   """
-  @spec post(pid, [var], Aruspex.Constraint.t) :: :ok
-  defcall post(v, c), state: state, when: is_function(c, length(v)) do
-    update_in(state.constraints, & [{v,c}|&1])
+  defcall post(c), state: state do
+    update_in(state.constraints, & [c|&1])
     |> set_and_reply :ok
-  end
-
-  def post(pid, constraint(variables: v, function: c)) do
-    post pid, v, c
   end
 
   @doc """

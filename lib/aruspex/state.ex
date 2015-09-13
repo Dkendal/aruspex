@@ -26,8 +26,9 @@ defmodule Aruspex.State do
     put_in state.cost, acc
   end
 
-  defp compute_cost state, [{variables, constraint}|t], acc \\ 0  do
-    cost = apply constraint, value_of(state, variables)
+  defp compute_cost state, [constraint|t], acc \\ 0  do
+    binding = bound_variables(state)
+    cost = Aruspex.Constraint.test_constraint(constraint, binding)
     compute_cost(state, t, cost + acc)
   end
 
