@@ -17,7 +17,7 @@ defmodule Aruspex.Constraint do
     end
   end
 
-  defmacro linear constraint, cost \\ @hard do
+  defmacro linear constraint do
     # define a variable that will appear in the body of a constraint
     # all generated variables should be hygenic
     v = fn
@@ -44,7 +44,7 @@ defmodule Aruspex.Constraint do
     constraint = quote do
       fn
         unquote_splicing(bound_vars) when unquote(expr) -> 0
-        unquote_splicing(bound_vars) -> unquote(cost)
+        unquote_splicing(bound_vars) -> 1
       end
     end
 
