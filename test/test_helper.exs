@@ -41,5 +41,4 @@ defmodule Aruspex.Case do
 end
 
 # load me in mix.exs instead
-Code.load_file("./test/strategy_test.exs")
 ExUnit.start()
