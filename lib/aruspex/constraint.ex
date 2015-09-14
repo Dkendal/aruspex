@@ -51,8 +51,8 @@ defmodule Aruspex.Constraint do
 
   # define a variable that will appear in the body of a constraint
   # if it's a variable than keep the name, but it should be module scoped
-  defp constraint_var({t, _, __CALLER__}), do: {t, [], __MODULE__}
-  defp constraint_var(name), do: Macro.var(:"var_#{name}", __MODULE__)
+  defp constraint_var({t, _, __CALLER__}), do: {:"v__#{t}", [], __MODULE__}
+  defp constraint_var(name), do: Macro.var(:"d__#{name}", __MODULE__)
 
   # replace any ^x variable with a variable and add it to the accumulator
   defp replace_bound_terms {:^, _, [term]}, acc do
