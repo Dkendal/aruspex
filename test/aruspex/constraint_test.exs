@@ -17,6 +17,13 @@ defmodule Aruspex.ConstraintTest do
       assert c.variables == [:x]
     end
 
+    it "preserves external variables" do
+      x = 10
+      f = constraint linear(x - 2 * ^x == 0), :function
+      assert f.([5]) == 0
+      assert f.([1]) == 1
+    end
+
     describe "generated constraint function" do
       it "returns 0 when satisfied", c do
         assert c.function.([1]) == 0
