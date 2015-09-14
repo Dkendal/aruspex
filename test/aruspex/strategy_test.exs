@@ -16,11 +16,8 @@ defmodule Aruspex.StrategyTest do
         pid |> Aruspex.post all_diff(variables)
 
         for x <- variables, y <- variables, y > x do
-          pid |> Aruspex.post constraint(variables: [x,y], function: fn
-            [x2, y2] when x+x2 == y+y2 -> 1
-            [x2, y2] when x-x2 == y-y2 -> 1
-            _ -> 0
-          end)
+          pid |> Aruspex.post linear(x + ^x != y + ^y)
+          pid |> Aruspex.post linear(x - ^x != y - ^y)
         end
 
         solution = Aruspex.find_solution pid
