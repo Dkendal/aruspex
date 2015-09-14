@@ -24,9 +24,20 @@ defmodule Aruspex.Constraint do
     build_linear(constraint)
   end
 
+  defmacro linear v, clause do
+    quote do
+      unquote(__MODULE__).constraint(
+      variables: unquote(v),
+      function: fn
+        unquote(clause) -> 0
+        _ -> 1
+      end)
+    end
+  end
+
   def build_linear constraint do
     {expr, substitutions} = Macro.postwalk constraint, %{},
-      &replace_bound_terms/2
+    &replace_bound_terms/2
 
     terms = Dict.keys(substitutions)
     bound_vars = Dict.values(substitutions)

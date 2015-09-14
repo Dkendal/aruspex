@@ -33,6 +33,17 @@ defmodule Aruspex.ConstraintTest do
         assert c.function.([0]) == 1
       end
     end
+
+    context "with variables specified" do
+      it "behaves the same" do
+        c = linear([:x, :y], [x, y] when x == y)
+        f = constraint(c, :function)
+
+        assert constraint(c, :variables) == [:x, :y]
+        assert f.([1,1]) == 0
+        assert f.([1,2]) == 1
+      end
+    end
   end
 
   describe "test_constraint/2" do
