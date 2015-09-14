@@ -39,10 +39,10 @@ defmodule Aruspex.Constraint do
   end
 
   def test_constraint(c, binding) do
-    # this is temporary
-    binding = binding |> Dict.take(constraint(c, :variables)) |> Dict.values
-
-    :erlang.apply constraint(c, :function), binding
+    binding = binding
+              |> Dict.take(constraint(c, :variables))
+              |> Dict.values
+    constraint(c, :function).(binding)
   end
 
   defp conjunct_clauses [a, b|t] do
@@ -66,8 +66,8 @@ defmodule Aruspex.Constraint do
   defp constraint_fun bound_vars, expr, cost do
     quote do
       fn
-        unquote_splicing(bound_vars) when unquote(expr) -> 0
-        unquote_splicing(bound_vars) -> unquote(cost)
+        unquote(bound_vars) when unquote(expr) -> 0
+        unquote(bound_vars) -> unquote(cost)
       end
     end
   end

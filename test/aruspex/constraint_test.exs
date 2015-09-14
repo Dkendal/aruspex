@@ -18,18 +18,12 @@ defmodule Aruspex.ConstraintTest do
     end
 
     describe "generated constraint function" do
-      it "has a constraint function with arity matching number of vars", c do
-        c.function
-        |> is_function(1)
-        |> assert
-      end
-
       it "returns 0 when satisfied", c do
-        assert c.function.(1) == 0
+        assert c.function.([1]) == 0
       end
 
       it "returns 1 when violated", c do
-        assert c.function.(0) == 1
+        assert c.function.([0]) == 1
       end
     end
   end
@@ -37,8 +31,8 @@ defmodule Aruspex.ConstraintTest do
   describe "test_constraint/2" do
     setup do
       c = constraint(variables: [:x, :y], function: fn
-        x, x -> 1
-        x, y -> flunk "should be unreachable, called with #{inspect x}, #{inspect y}"
+        [x, x] -> 1
+        [x, y] -> flunk "should be unreachable, called with #{inspect x}, #{inspect y}"
       end)
 
       {:ok, constraint: c}

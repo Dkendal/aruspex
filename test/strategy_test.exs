@@ -18,10 +18,10 @@ defmodule Aruspex.StrategyTest do
 
         for x <- variables, y <- variables, y > x do
           pid |> Aruspex.post constraint(variables: [x,y], function: fn
-            ({_x1, s}, {_y1, s}) -> 1
-            ({x1, x2}, {y1, y2}) when x1+x2 == y1+y2 -> 1
-            ({x1, x2}, {y1, y2}) when x1-x2 == y1-y2 -> 1
-            (_, _) -> 0
+            ([{_x1, s}, {_y1, s}]) -> 1
+            ([{x1, x2}, {y1, y2}]) when x1+x2 == y1+y2 -> 1
+            ([{x1, x2}, {y1, y2}]) when x1-x2 == y1-y2 -> 1
+            ([_, _]) -> 0
           end)
         end
 
