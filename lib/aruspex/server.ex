@@ -49,13 +49,12 @@ defmodule Aruspex.Server do
   """
   @spec find_solution(pid) :: [{var, any}]
   defcall find_solution(), state: state do
-    state.options.strategy.label(state)
-    |> case do
+    case state.options.strategy.label(state) do
       nil ->
         raise Aruspex.Strategy.InvalidResultError, module: state.options.strategy
-      s -> s
+      s ->
+        set_and_reply(s, bound_variables(s))
     end
-    |> tap s ~> set_and_reply s, bound_variables(s)
   end
 
   @doc "Sets the strategy to be used by the searcher"
