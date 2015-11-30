@@ -63,7 +63,11 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
           |> Dict.to_list
           |> Dict.keys
           |> Enum.random
-    decide(state, key)
+    try do
+      decide(state, key)
+    rescue
+      Enum.EmptyError -> restart(state)
+    end
   end
 
   defp decide(state, nil),
