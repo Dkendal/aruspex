@@ -7,7 +7,10 @@ defmodule Aruspex.Server do
   alias Aruspex.Var
   alias Aruspex
 
-  import State
+  import State, only: [
+    bound_variables: 1,
+    terms: 1
+  ]
 
   @type var :: any
   @type domain :: Enum.t
