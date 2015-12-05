@@ -23,7 +23,7 @@ defmodule Aruspex.Server do
 
   @doc "Stops the server."
   @spec stop(pid) :: :ok
-  defcast stop, state: state do
+  defcast stop do
     stop_server :normal
   end
 
