@@ -29,8 +29,8 @@ iex> Aruspex.find_solution pid
 [x: 8, y: 2]
 ```
 
-A more complicated example checkout can be found [here](test/aruspex/strategy_test.exs)
+A more complicated example can be found [here](test/aruspex/strategy_test.exs)
 
 ## Usage
 Check the api exposed by `Aruspex.Server`, all calls to `Aruspex` will be
-delegated this module.
+delegated to this module.
