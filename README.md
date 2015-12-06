@@ -1,7 +1,7 @@
 # Aruspex
 Aruspex is a configurable constraint solver, written purely in Elixir.
 
-## Example Usage
+## Example
 ```elixir
 iex> {:ok, pid} = Aruspex.start_link
 {:ok, #PID<0.149.0>}
