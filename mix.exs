@@ -30,7 +30,7 @@ defmodule Aruspex.Mixfile do
   def package do
     [
       links: %{
-        "Github" => "github.com/dkendal/aruspex"
+        "Github" => "https://www.github.com/dkendal/aruspex"
       },
       maintainers: ["dylankendal@gmail.com"],
       licenses: ["MIT"]
