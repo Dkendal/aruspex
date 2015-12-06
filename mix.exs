@@ -31,6 +31,7 @@ defmodule Aruspex.Mixfile do
      {:pattern_tap, []},
      {:exyz, "~> 1.0.0"},
      {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
+     {:dialyze, "~> 0.2", only: :dev},
      {:dbg, github: "fishcakez/dbg"}]
   end
 end
