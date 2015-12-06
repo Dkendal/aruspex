@@ -9,6 +9,11 @@ defmodule Aruspex.Constraint do
   """
 
   defrecord :constraint, variables: [], function: :undefined
+  @type t :: record(
+    :constraint,
+    variables: [Literals],
+    function: ([Literals] -> number)
+  )
 
   defmacro __using__ _opts do
     quote do

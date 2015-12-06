@@ -12,7 +12,7 @@ defmodule Aruspex.Server do
     terms: 1
   ]
 
-  @type var :: any
+  @type var :: Literals
   @type domain :: Enum.t
   @type strategy :: Aruspex.Strategy.t
 
@@ -40,6 +40,7 @@ defmodule Aruspex.Server do
   Defines a linear constraint on all variables v, c must a function with an
   arity that matches the number of variables.
   """
+  @spec post(pid, Constraint.t) :: :ok
   defcall post(c), state: state do
     update_in(state.constraints, & [c|&1])
     |> set_and_reply :ok
@@ -67,6 +68,7 @@ defmodule Aruspex.Server do
     |> set_and_reply :ok
   end
 
+  @doc "Returns alll defined variables"
   defcall get_terms(), state: state do
     state
     |> terms

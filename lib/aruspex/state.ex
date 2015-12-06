@@ -1,36 +1,64 @@
 defmodule Aruspex.State do
-  defstruct constraints: [],
+  alias Aruspex.Var
+  alias Aruspex.Constraint
+
+  @moduledoc """
+  Defines operations on the state atom.
+
+  These methods, and the state atom, are not intended to be interacted on
+  directly inside on an application. It is recommended using the API exposed by
+  Aruspex.Server instead.
+  """
+
+  @opaque t :: %__MODULE__{
+    constraints: [Constraint.t],
+    variables: [Var.t],
+    cost: number,
+    options: options
+  }
+
+  @type options :: %{
+    strategy: module
+  }
+
+  defstruct(
+    constraints: [],
     variables: %{},
     cost: 0,
     options: %{
-      strategy: Aruspex.Strategy.SimulatedAnnealing}
+      strategy: Aruspex.Strategy.SimulatedAnnealing
+    }
+  )
 
+  @spec value_of(t, [Literals]) :: any
   def value_of state, terms do
     for x <- terms, do: state.variables[x].binding
   end
 
+  @spec bound_variables(t) :: [{Literals, any}]
   def bound_variables state do
     for {k, v} <- state.variables, do: {k, v.binding}
   end
 
+  @spec terms(t) :: [Literals]
   def terms state do
     Dict.keys state.variables
   end
 
+  @spec compute_cost(t) :: t
+  @spec compute_cost(t, [Constraint.t], any) :: t
   def compute_cost state do
     zero_cost(state)
-    |> compute_cost(state.constraints)
+    |> compute_cost(state.constraints, 0)
   end
 
-  defp compute_cost state, constraint, acc \\ 0
-
-  defp compute_cost state, [], acc do
+  def compute_cost state, [], acc do
     put_in state.cost, acc
   end
 
-  defp compute_cost state, [constraint|t], acc do
+  def compute_cost state, [constraint|t], acc do
     binding = bound_variables(state)
-    cost = Aruspex.Constraint.test_constraint(constraint, binding)
+    cost = Constraint.test_constraint(constraint, binding)
     compute_cost(state, t, cost + acc)
   end
 

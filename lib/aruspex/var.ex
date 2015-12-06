@@ -1,4 +1,6 @@
 defmodule Aruspex.Var do
+  @opaque t :: %__MODULE__{}
+
   defstruct binding: nil, domain: [], cost: 0
 
   defimpl Inspect, for: __MODULE__ do
