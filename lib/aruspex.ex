@@ -15,7 +15,6 @@ defmodule Aruspex do
     stop(pid),
     variable(pid, v, d),
     post(pid, c),
-    post(pid, v, c),
     find_solution(pid),
     set_search_strategy(pid, strategy),
     get_terms(pid)

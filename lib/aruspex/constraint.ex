@@ -1,5 +1,5 @@
 defmodule Aruspex.Constraint do
-  import Aruspex, only: [get_terms: 1, post: 3]
+  import Aruspex, only: [get_terms: 1]
   require Macro
   require Record
   import Record, only: :macros
