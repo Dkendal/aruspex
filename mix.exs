@@ -2,12 +2,16 @@ defmodule Aruspex.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :aruspex,
-     version: "0.0.1",
-     elixir: ">= 1.1.0-beta",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps]
+    [
+      app: :aruspex,
+      version: "0.0.1",
+      elixir: "~> 1.1.0",
+      description: description,
+      package: package,
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      deps: deps,
+    ]
   end
 
   # Configuration for the OTP application
@@ -15,6 +19,22 @@ defmodule Aruspex.Mixfile do
   # Type `mix help compile.app` for more information
   def application do
     [applications: [:logger, :dbg]]
+  end
+
+  def description do
+    """
+    A configurable constraint solver with an API based on JSR 331.
+    """
+  end
+
+  def package do
+    [
+      links: %{
+        "Github" => "github.com/dkendal/aruspex"
+      },
+      maintainers: ["dylankendal@gmail.com"],
+      licenses: ["MIT"]
+    ]
   end
 
   # Dependencies can be Hex packages:
