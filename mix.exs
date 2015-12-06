@@ -47,11 +47,14 @@ defmodule Aruspex.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:exactor, "~> 2.1.0"},
-     {:pattern_tap, []},
-     {:exyz, "~> 1.0.0"},
-     {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
-     {:dialyze, "~> 0.2", only: :dev},
-     {:dbg, github: "fishcakez/dbg"}]
+    [
+      {:dbg, github: "fishcakez/dbg"},
+      {:dialyze, "~> 0.2", only: :dev},
+      {:ex_doc, "~> 0.10", only: :docs},
+      {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
+      {:exactor, "~> 2.1.0"},
+      {:exyz, "~> 1.0.0"},
+      {:pattern_tap, []}
+    ]
   end
 end
