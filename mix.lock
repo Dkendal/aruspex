@@ -2,7 +2,7 @@
   "dialyze": {:hex, :dialyze, "0.2.0"},
   "ex_doc": {:hex, :ex_doc, "0.11.1"},
   "ex_spec": {:git, "https://github.com/dkendal/ex_spec.git", "407362c63bd42e6beb2e34b48fa0a8cbf7d164e2", [branch: "master"]},
-  "exactor": {:hex, :exactor, "2.1.2"},
+  "exactor": {:hex, :exactor, "2.2.0"},
   "exyz": {:hex, :exyz, "1.0.0"},
   "pattern_tap": {:hex, :pattern_tap, "0.2.2"},
   "poison": {:hex, :poison, "1.5.0"}}

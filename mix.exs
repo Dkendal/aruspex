@@ -52,7 +52,7 @@ defmodule Aruspex.Mixfile do
       {:dialyze, "~> 0.2", only: :dev},
       {:ex_doc, "~> 0.10", only: :docs},
       {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
-      {:exactor, "~> 2.1.0"},
+      {:exactor, "~> 2.2"},
       {:exyz, "~> 1.0.0"},
       {:pattern_tap, []}
     ]
