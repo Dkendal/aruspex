@@ -1,8 +1,8 @@
 defmodule Aruspex.Constraint do
   import Aruspex, only: [get_terms: 1]
+  import Record, only: :macros
   require Macro
   require Record
-  import Record, only: :macros
 
   @moddoc """
   Contains helpers and macros for creating constraints.
@@ -25,10 +25,51 @@ defmodule Aruspex.Constraint do
     end
   end
 
+  @doc """
+  The linear macro provides a succinct method of defining simple constraints.
+
+  Both forms of `linear/{1,2}` only supports clauses that are capable of being
+  inlined (i.e expressions that can appear in guard clauses).
+
+  ```
+  pid
+  |> post(linear ^:x == ^:y)
+  ```
+
+  Pinned literals inside the arguments of `linear/1` indicate that the value
+  refers to a named variable which will be substituted in during compilation.
+  Pinned variables may also be used to the same effect.  Unpinned values will
+  be used by value.
+
+  ```
+  some_var = :x
+  z = 1
+  pid
+  |> post(linear ^some_var == ^:y + z)
+  ```
+
+  is equivalent to:
+
+  ```elixir
+  pid
+  |> post(linear ^:x == ^:y + 1)
+  ```
+  """
   defmacro linear constraint do
     build_linear(constraint)
   end
 
+
+  @doc """
+  In its second form, the named variables may be defined explicitly as the
+  first argument, and matched on.
+
+  ```elixir
+  pid
+  |> post(linear [:x, :y],
+                 [{x1, _}, {_, y2}] when x1 == y2)
+  ```
+  """
   defmacro linear v, clause do
     quote do
       unquote(__MODULE__).constraint(
