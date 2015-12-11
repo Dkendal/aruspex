@@ -86,7 +86,7 @@ The `all_diff` constraint would impose a condition that all variables specified
 must be unique.
 
 #### linear/1
-Using the `linear/{1,2}` macro (only supports clauses that can be inlined -
+using the `linear/{1,2}` macro (only supports clauses that can be inlined -
 only expressions that can appear in guard clauses):
 
 ```elixir
@@ -94,11 +94,11 @@ pid
 |> post(linear ^:x == ^:y)
 ```
 
-Inside the body of the `linear/1` macro pinned literals indicate that the value
+inside the body of the `linear/1` macro pinned literals indicate that the value
 refers to a named variable which will be substituted in during compilation.
-Pinned variables may also be used to the same effect.
+pinned variables may also be used to the same effect.
 
-Unpinned values will be used by value.
+unpinned values will be used by value.
 
 ```elixir
 some_var = :x
@@ -107,7 +107,7 @@ pid
 |> post(linear ^some_var == ^:y + z)
 ```
 
-Is equivalent to:
+is equivalent to:
 
 ```elixir
 pid
