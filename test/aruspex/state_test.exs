@@ -10,9 +10,10 @@ defmodule Aruspex.StateTest do
 
       for v <- variables, do: Aruspex.variable(pid, v, [1])
 
-      :ok = Aruspex.post pid, linear(^:y != ^:x)
-      :ok = Aruspex.post pid, linear(^:x != 1)
-      :ok = Aruspex.post pid, linear(^:y != 1)
+      pid
+      |> Aruspex.post(linear ^:y != ^:x)
+      |> Aruspex.post(linear ^:x != 1)
+      |> Aruspex.post(linear ^:y != 1)
 
       state = :sys.get_state(pid)
       Aruspex.stop pid

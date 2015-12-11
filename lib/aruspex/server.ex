@@ -24,26 +24,26 @@ defmodule Aruspex.Server do
   @doc "Stops the server."
   @spec stop(pid) :: :ok
   defcast stop do
-    stop_server :normal
+    stop_server(:normal)
   end
 
   @doc """
   Adds a constrained variable v, with domain d, to the problem.
   """
-  @spec variable(pid, var, domain) :: var
+  @spec variable(pid, var, domain) :: pid
   defcall variable(v, d), state: state do
     put_in(state.variables[v], %Var{domain: d})
-    |> set_and_reply v
+    |> set_and_reply(self)
   end
 
   @doc """
   Defines a linear constraint on all variables v, c must a function with an
   arity that matches the number of variables.
   """
-  @spec post(pid, Constraint.t) :: :ok
+  @spec post(pid, Constraint.t) :: pid
   defcall post(c), state: state do
     update_in(state.constraints, & [c|&1])
-    |> set_and_reply :ok
+    |> set_and_reply(self)
   end
 
   @doc """
@@ -62,10 +62,10 @@ defmodule Aruspex.Server do
   end
 
   @doc "Sets the strategy to be used by the searcher"
-  @spec set_search_strategy(pid, strategy) :: :ok
+  @spec set_search_strategy(pid, strategy) :: pid
   defcall set_search_strategy(strategy), state: state do
     put_in(state.options.strategy, strategy)
-    |> set_and_reply :ok
+    |> set_and_reply(self)
   end
 
   @doc "Returns alll defined variables"

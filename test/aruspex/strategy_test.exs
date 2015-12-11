@@ -11,13 +11,14 @@ defmodule Aruspex.StrategyTest do
 
         for x <- variables, do: Aruspex.variable(pid, x, variables)
 
-        :ok = Aruspex.set_search_strategy pid, strategy
-
-        pid |> Aruspex.post all_diff(variables)
+        pid
+        |> Aruspex.set_search_strategy(strategy)
+        |> Aruspex.post(all_diff variables)
 
         for x <- variables, y <- variables, y > x do
-          pid |> Aruspex.post linear(x + ^x != y + ^y)
-          pid |> Aruspex.post linear(x - ^x != y - ^y)
+          pid
+          |> Aruspex.post(linear x + ^x != y + ^y)
+          |> Aruspex.post(linear x - ^x != y - ^y)
         end
 
         solution = Aruspex.find_solution pid
