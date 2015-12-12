@@ -150,5 +150,10 @@ pid
 ))
 ```
 ## Roadmap
+- [ ] configurable settings for s.a. strategy (run time, cooling strategy, etc.)
+- [ ] configurable tolerance for what is an acceptable solution (default is only perfect solutions)
+- [ ] allow strategies to return multiple soltuions with message box.
+- [ ] allow multiple strategies to be employed, which will act as middlewear.
+- [ ] user defined optimization tolerance
 - [ ] implement more common constraints from [the global constraint catalog](http://www.emn.fr/z-info/sdemasse/gccat/sec5.html).
 - [ ] add additional strategies
