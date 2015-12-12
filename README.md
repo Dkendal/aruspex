@@ -149,3 +149,6 @@ pid
   end
 ))
 ```
+## Roadmap
+- [ ] implement more common constraints from [the global constraint catalog](http://www.emn.fr/z-info/sdemasse/gccat/sec5.html).
+- [ ] add additional strategies
