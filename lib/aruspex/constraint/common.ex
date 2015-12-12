@@ -13,9 +13,10 @@ defmodule Aruspex.Constraint.Common do
   iex> Aruspex.post pid, all_diff([:x, :y, :z])
   """
   def all_diff vars do
-    Aruspex.Constraint.constraint(variables: vars, function: fn
-      s -> all_diff_constraint(s)
-    end)
+    Aruspex.Constraint.constraint(
+      variables: vars,
+      function: &all_diff_constraint/1
+    )
   end
 
   def all_diff_constraint([], _), do: 0
