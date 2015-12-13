@@ -1,32 +1,28 @@
-defmodule Aruspex.StrategyTest do
-  defmacro __using__ strategy: strategy do
+defmodule Examples.FourQueens do
+  defmacro test strategy do
     quote do
-      setup do
+      test "#{inspect unquote strategy} solves 4 queens" do
+        import Enum
+        import Aruspex
         use Aruspex.Constraint
-
-        strategy = unquote strategy
         variables = 1..4
 
-        {:ok, pid} = Aruspex.start_link
+        {:ok, pid} = start_link
 
-        for x <- variables, do: Aruspex.variable(pid, x, variables)
+        map variables, & variable(pid, &1, variables)
 
         pid
-        |> Aruspex.set_search_strategy(strategy)
-        |> Aruspex.post(all_diff variables)
+        |> set_search_strategy(unquote strategy)
+        |> post(all_diff variables)
 
         for x <- variables, y <- variables, y > x do
           pid
-          |> Aruspex.post(linear x + ^x != y + ^y)
-          |> Aruspex.post(linear x - ^x != y - ^y)
+          |> post(linear x + ^x != y + ^y)
+          |> post(linear x - ^x != y - ^y)
         end
 
-        solution = Aruspex.find_solution pid
+        solution = find_solution pid
 
-        {:ok, solution: solution, pid: pid }
-      end
-
-      test "#{unquote strategy} can solve #{4} queens", %{solution: solution} do
         case solution[1] do
           3 ->
             assert solution[1] == 3
