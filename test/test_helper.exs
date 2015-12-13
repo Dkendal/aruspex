@@ -30,15 +30,5 @@ defmodule Aruspex.Matchers do
   end
 end
 
-defmodule Aruspex.Case do
-  defmacro __using__ opts \\ [async: true, trace: true] do
-    quote do
-      use Pavlov.Case, unquote(opts)
-      import Pavlov.Syntax.Expect
-      import Aruspex.Matchers
-    end
-  end
-end
-
 # load me in mix.exs instead
 ExUnit.start()
