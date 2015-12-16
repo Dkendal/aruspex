@@ -70,7 +70,7 @@ defmodule Aruspex.State do
     compute_cost(state, t, cost + acc)
   end
 
-  @spec get_cost(State.t) :: number
+  @spec get_cost(State.t) :: Var.cost
   @module "Returns the cost of the current, or last executed, problem."
   def get_cost state do
     state.cost
