@@ -13,7 +13,7 @@ which supports weighted CSPs.
 **This readme refers to master, please check the readme for your release.**
 
 ## Example
-Given a map of Australia, find some colouring of teritories, such that no adjacent territory has the same colour, while minizing the number of colours used.
+Given a map of Australia, find some colouring of teritories, such that no adjacent territory has the same colour.
 
 ![](http://australia.pppst.com/Australia_map_regions.gif)
 
