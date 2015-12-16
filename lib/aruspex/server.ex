@@ -8,7 +8,6 @@ defmodule Aruspex.Server do
 
   @type t :: pid
   @type var :: Literals
-  @type domain :: Enum.t
   @type strategy :: Aruspex.Strategy.t
 
   @spec start_link(Map.t) :: {:ok, t}
@@ -25,7 +24,7 @@ defmodule Aruspex.Server do
   @doc """
   Adds a constrained variable v, with domain d, to the problem.
   """
-  @spec variable(t, var, domain) :: pid
+  @spec variable(t, var, Var.domain) :: pid
   defcall variable(v, d), state: state do
     put_in(state.variables[v], %Var{domain: d})
     |> set_and_reply(self)

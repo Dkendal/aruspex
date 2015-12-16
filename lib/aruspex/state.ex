@@ -45,6 +45,11 @@ defmodule Aruspex.State do
     Dict.keys state.variables
   end
 
+  @spec get_var(t, Literals) :: Var.t
+  def get_var(state, v) do
+    state.variables[v]
+  end
+
   @spec compute_cost(t) :: t
   @spec compute_cost(t, [Constraint.t], any) :: t
   def compute_cost state do
