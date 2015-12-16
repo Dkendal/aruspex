@@ -1,3 +1,5 @@
+ExUnit.start
+
 defmodule Aruspex.Matchers do
   import ExUnit.Assertions
   import IO.ANSI
@@ -29,6 +31,3 @@ defmodule Aruspex.Matchers do
     |> M.to_string
   end
 end
-
-# load me in mix.exs instead
-ExUnit.start()
