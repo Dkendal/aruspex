@@ -14,7 +14,7 @@ which supports weighted CSPs.
 
 ## Example
 ```elixir
-import Aruspex
+import Aruspex.Server
 use Aruspex.Constraint
 {:ok, problem} = start_link
 # -> {:ok, #PID<0.149.0>}
@@ -47,13 +47,12 @@ problem
 A more complicated example checkout can be found [here](test/aruspex/strategy_test.exs)
 
 ## Usage
-Check the api exposed by `Aruspex.Server`, all calls to `Aruspex` will be
-delegated this module.
+Check the api exposed by `Aruspex.Server`
 
 ### Creating a new problem
 Aruspex uses a `GenServer` under the hood, to create a new problem simply use
 ```elixir
-{:ok, pid} = Aruspex.start_link
+{:ok, pid} = Aruspex.Server.start_link
 ```
 
 ### Defining a new variable
@@ -62,7 +61,7 @@ variable.  This literal will be used to reference the variable later when
 defining constraints and will appear in the solution.
 ```elixir
 @spec variable(pid, Literals, Enum.t) :: pid
-^pid = Aruspex.variable(pid, :x, 1..100)
+^pid = Aruspex.Server.variable(pid, :x, 1..100)
 ```
 
 ### Defining a new constraint

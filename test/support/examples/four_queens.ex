@@ -3,7 +3,7 @@ defmodule Examples.FourQueens do
     quote do
       test "#{inspect unquote strategy} solves 4 queens" do
         import Enum
-        import Aruspex
+        import Aruspex.Server
         use Aruspex.Constraint
         variables = 1..4
 

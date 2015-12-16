@@ -64,7 +64,7 @@ defmodule Aruspex.State do
 
   defp zero_cost state do
     put_in(state.cost, 0)
-    |> put_cost terms(state), 0
+    |> put_cost(terms(state), 0)
   end
 
   defp put_cost state, [], _cost do

@@ -6,17 +6,17 @@ defmodule Aruspex.StateTest do
     setup do
       variables = [:x, :y]
 
-      {:ok, pid} = Aruspex.start_link
+      {:ok, pid} = Aruspex.Server.start_link
 
-      for v <- variables, do: Aruspex.variable(pid, v, [1])
+      for v <- variables, do: Aruspex.Server.variable(pid, v, [1])
 
       pid
-      |> Aruspex.post(linear ^:y != ^:x)
-      |> Aruspex.post(linear ^:x != 1)
-      |> Aruspex.post(linear ^:y != 1)
+      |> Aruspex.Server.post(linear ^:y != ^:x)
+      |> Aruspex.Server.post(linear ^:x != 1)
+      |> Aruspex.Server.post(linear ^:y != 1)
 
       state = :sys.get_state(pid)
-      Aruspex.stop pid
+      Aruspex.Server.stop pid
 
       state = put_in state.variables.x.binding, 1
       state = put_in state.variables.y.binding, 1

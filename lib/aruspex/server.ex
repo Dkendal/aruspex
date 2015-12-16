@@ -5,24 +5,19 @@ defmodule Aruspex.Server do
 
   alias Aruspex.State
   alias Aruspex.Var
-  alias Aruspex
 
-  import State, only: [
-    bound_variables: 1,
-    terms: 1
-  ]
-
+  @type t :: pid
   @type var :: Literals
   @type domain :: Enum.t
   @type strategy :: Aruspex.Strategy.t
 
-  @spec start_link(Map.t) :: {:ok, pid}
+  @spec start_link(Map.t) :: {:ok, t}
   defstart start_link, gen_server_opts: :runtime do
     initial_state %State{}
   end
 
   @doc "Stops the server."
-  @spec stop(pid) :: :ok
+  @spec stop(t) :: :ok
   defcast stop do
     stop_server(:normal)
   end
@@ -30,7 +25,7 @@ defmodule Aruspex.Server do
   @doc """
   Adds a constrained variable v, with domain d, to the problem.
   """
-  @spec variable(pid, var, domain) :: pid
+  @spec variable(t, var, domain) :: pid
   defcall variable(v, d), state: state do
     put_in(state.variables[v], %Var{domain: d})
     |> set_and_reply(self)
@@ -40,7 +35,7 @@ defmodule Aruspex.Server do
   Defines a linear constraint on all variables v, c must a function with an
   arity that matches the number of variables.
   """
-  @spec post(pid, Constraint.t) :: pid
+  @spec post(t, Constraint.t) :: pid
   defcall post(c), state: state do
     update_in(state.constraints, & [c|&1])
     |> set_and_reply(self)
@@ -51,13 +46,13 @@ defmodule Aruspex.Server do
   one was not defined by set_search_strategy. Returns the solution or raises an
   error if non is found or the search times out.
   """
-  @spec find_solution(pid) :: [{var, any}]
+  @spec find_solution(t) :: [{var, any}]
   defcall find_solution(), state: state do
     case state.options.strategy.label(state) do
       nil ->
         raise Aruspex.Strategy.InvalidResultError, module: state.options.strategy
       s ->
-        set_and_reply(s, bound_variables(s))
+        set_and_reply(s, State.bound_variables(s))
     end
   end
 
@@ -71,7 +66,7 @@ defmodule Aruspex.Server do
   @doc "Returns alll defined variables"
   defcall get_terms(), state: state do
     state
-    |> terms
+    |> State.terms
     |> reply
   end
 end
