@@ -1,13 +1,16 @@
 defmodule Aruspex.Var do
-  @opaque t :: %__MODULE__{}
+  @opaque t :: %__MODULE__{
+    binding: any,
+    domain: domain,
+    cost: number
+  }
+
+  @type domain :: Enum.t
 
   defstruct binding: nil, domain: [], cost: 0
 
-  defimpl Inspect, for: __MODULE__ do
-    import Inspect.Algebra
-
-    def inspect var, opts do
-      concat ["#Aruspex.Var<",to_doc(var.binding, opts), ">"]
-    end
+  @spec domain(t) :: domain
+  def domain(var) do
+    var.domain
   end
 end
