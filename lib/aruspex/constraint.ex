@@ -1,4 +1,5 @@
 defmodule Aruspex.Constraint do
+  alias Aruspex.Var
   import Record, only: :macros
   require Macro
   require Record
@@ -10,8 +11,8 @@ defmodule Aruspex.Constraint do
   defrecord :constraint, variables: [], function: :undefined
   @type t :: record(
     :constraint,
-    variables: [Literals],
-    function: ([Literals] -> number)
+    variables: [Var.name],
+    function: ([Var.name] -> Var.cost)
   )
 
   defmacro __using__ _opts do

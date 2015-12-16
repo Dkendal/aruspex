@@ -32,20 +32,20 @@ defmodule Aruspex.State do
     }
   )
 
-  @spec bound_variables(t) :: [{Literals, any}]
+  @spec bound_variables(t) :: [{Var.name, any}]
   def bound_variables state do
     for {name, var} <- state.variables,
       do: {name, Var.binding(var)}
   end
 
-  @spec terms(t) :: [Literals]
+  @spec terms(t) :: [Var.name]
   def terms state do
     Dict.keys state.variables
   end
 
-  @spec get_var(t, Literals) :: Var.t
-  def get_var(state, v) do
-    state.variables[v]
+  @spec get_var(t, Var.name) :: Var.t
+  def get_var(state, name) do
+    state.variables[name]
   end
 
   @spec get_vars(t) :: variables
