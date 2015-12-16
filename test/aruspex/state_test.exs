@@ -25,7 +25,6 @@ defmodule Aruspex.StateTest do
         subject: Aruspex.State.compute_cost(state)}
     end
 
-
     it "returns the cost, and an updated state", c do
       assert c.subject.cost == 3
     end
