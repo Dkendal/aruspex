@@ -13,38 +13,54 @@ which supports weighted CSPs.
 **This readme refers to master, please check the readme for your release.**
 
 ## Example
+Given a map of Australia, find some colouring of teritories, such that no adjacent territory has the same colour, while minizing the number of colours used.
+
+![](http://australia.pppst.com/Australia_map_regions.gif)
+
 ```elixir
 import Aruspex.Server
 use Aruspex.Constraint
+
 {:ok, problem} = start_link
-# -> {:ok, #PID<0.149.0>}
+
+variables = [
+  wa  = :western_australia,
+  nt  = :nothern_territory,
+  q   = :queensland,
+  sa  = :south_australia,
+  nsw = :new_south_wales,
+  v   = :victoria,
+  t   = :tasmania
+]
+
+domain = [:red, :green, :blue]
+
+Enum.map variables, &(variable problem, &1, domain)
 
 problem
-# Search strategies are plugable. You're free to implment your own, it just
-# needs to implement the `Aruspex.Strategy` behaviour.
 |> set_search_strategy(Aruspex.Strategy.SimulatedAnnealing)
-|> variable(:x, [2, 4, 6, 8])
-|> variable(:y, [1, 2, 3, 5])
-# Aruspex also ships with a couple common constraints, like all different.
-|> post(all_diff [:x, :y])
-|> post(linear rem(^:x, ^:y) == 0)
+# adjacent territories cannot be the same colour
+|> post(linear ^wa != ^nt)
+|> post(linear ^wa != ^sa)
+|> post(linear ^sa != ^nt)
+|> post(linear ^sa != ^q)
+|> post(linear ^sa != ^nsw)
+|> post(linear ^sa != ^v)
+|> post(linear ^nt != ^q)
+|> post(linear ^q != ^nsw)
+|> post(linear ^nsw != ^v)
 |> find_solution
-# -> [x: 2, y: 1]
-
-problem |> find_solution
-# -> [x: 8, y: 1]
-
-problem
-|> post(linear ^:y != 1)
-|> find_solution
-# -> [x: 6, y: 3]
-
-problem
-|> find_solution
-# -> [x: 8, y: 2]
+|> IO.inspect
+# [ new_south_wales:    :blue,
+#   nothern_territory:  :blue,
+#   queensland:         :green,
+#   south_australia:    :red,
+#   tasmania:           :green,
+#   victoria:           :green,
+#   western_australia:  :green ]
 ```
 
-A more complicated example checkout can be found [here](test/aruspex/strategy_test.exs)
+For some more examples checkout [these.](test/support/examples/)
 
 ## Usage
 Check the api exposed by `Aruspex.Server`
