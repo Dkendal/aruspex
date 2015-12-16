@@ -40,7 +40,8 @@ Enum.map variables, &(variable problem, &1, domain)
 problem
 |> set_search_strategy(Aruspex.Strategy.SimulatedAnnealing)
 # adjacent territories cannot be the same colour
-# The pin operator is used to reference a named variable in a constraint, check the section on variables below.
+# The pin operator is used to reference a named variable in a constraint,
+# check the section on variables below.
 |> post(linear ^wa != ^nt)
 |> post(linear ^wa != ^sa)
 |> post(linear ^sa != ^nt)
