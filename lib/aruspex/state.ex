@@ -30,11 +30,6 @@ defmodule Aruspex.State do
     }
   )
 
-  @spec value_of(t, [Literals]) :: any
-  def value_of state, terms do
-    for x <- terms, do: state.variables[x].binding
-  end
-
   @spec bound_variables(t) :: [{Literals, any}]
   def bound_variables state do
     for {name, var} <- state.variables,
