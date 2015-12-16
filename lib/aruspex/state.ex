@@ -37,7 +37,8 @@ defmodule Aruspex.State do
 
   @spec bound_variables(t) :: [{Literals, any}]
   def bound_variables state do
-    for {k, v} <- state.variables, do: {k, v.binding}
+    for {name, var} <- state.variables,
+      do: {name, Var.binding(var)}
   end
 
   @spec terms(t) :: [Literals]

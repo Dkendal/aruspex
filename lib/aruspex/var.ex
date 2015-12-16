@@ -13,4 +13,9 @@ defmodule Aruspex.Var do
   def domain(var) do
     var.domain
   end
+
+  @spec binding(t) :: any
+  def binding(var) do
+    var.binding
+  end
 end
