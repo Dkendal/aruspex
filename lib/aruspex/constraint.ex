@@ -102,10 +102,6 @@ defmodule Aruspex.Constraint do
     constraint(c, :function).(binding)
   end
 
-  defp conjunct_clauses [a, b|t] do
-    conjunct_clauses [b|t], a
-  end
-
   # define a variable that will appear in the body of a constraint
   # if it's a variable than keep the name, but it should be module scoped
   defp constraint_var({t, _, __CALLER__}), do: {:"v__#{t}", [], __MODULE__}
