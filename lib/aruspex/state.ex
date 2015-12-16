@@ -12,7 +12,7 @@ defmodule Aruspex.State do
 
   @opaque t :: %__MODULE__{
     constraints: [Constraint.t],
-    variables: [Var.t],
+    variables: variables,
     cost: number,
     options: options
   }
@@ -20,6 +20,8 @@ defmodule Aruspex.State do
   @type options :: %{
     strategy: module
   }
+
+  @type variables :: %{Var.name => Var.t}
 
   defstruct(
     constraints: [],
@@ -46,6 +48,11 @@ defmodule Aruspex.State do
     state.variables[v]
   end
 
+  @spec get_vars(t) :: variables
+  def get_vars(state) do
+    state.variables
+  end
+
   @spec compute_cost(t) :: t
   @spec compute_cost(t, [Constraint.t], any) :: t
   def compute_cost state do
@@ -69,22 +76,23 @@ defmodule Aruspex.State do
     state.cost
   end
 
+  defp set_cost(state, cost) do
+    put_in state.cost, cost
+  end
+
   defp zero_cost state do
-    put_in(state.cost, 0)
-    |> put_cost(terms(state), 0)
-  end
-
-  defp put_cost state, [], _cost do
     state
+    |> get_vars
+    |> Enum.reduce(state, fn
+      {name, var}, state ->
+        state
+        |> set_var(name, var |> Var.set_cost(0))
+    end)
+    |> set_cost(0)
   end
 
-  defp put_cost state, [h|t], cost do
-    put_cost(state, h, cost)
-    |> put_cost(t, cost)
-  end
-
-  defp put_cost state, v, cost do
-    put_in(state.variables[v].cost, cost)
+  defp set_var(state, name, var) do
+    put_in state.variables[name], var
   end
 
   defimpl Inspect, for: __MODULE__ do
