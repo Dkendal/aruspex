@@ -24,9 +24,11 @@ defmodule Aruspex.Server do
   @doc """
   Adds a constrained variable v, with domain d, to the problem.
   """
-  @spec variable(t, var, Var.domain) :: pid
-  defcall variable(v, d), state: state do
-    put_in(state.variables[v], %Var{domain: d})
+  @spec variable(t, Var.name, Var.domain) :: pid
+  defcall variable(name, domain), state: state do
+    var = Var.new(domain)
+    state
+    |> State.set_var(name, var)
     |> set_and_reply(self)
   end
 

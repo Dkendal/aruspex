@@ -30,4 +30,9 @@ defmodule Aruspex.Var do
   def set_cost(var, cost) do
     put_in(var.cost, cost)
   end
+
+  @spec new(domain) :: t
+  def new(domain) do
+    %__MODULE__{domain: domain}
+  end
 end
