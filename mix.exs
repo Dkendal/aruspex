@@ -50,8 +50,7 @@ defmodule Aruspex.Mixfile do
       {:ex_doc, "~> 0.10", only: :docs},
       {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
       {:exactor, "~> 2.2"},
-      {:exyz, "~> 1.0.0"},
-      {:pattern_tap, []}
+      {:exyz, "~> 1.0.0"}
     ]
   end
 end
