@@ -56,6 +56,13 @@ defmodule Aruspex.State do
     put_in state.variables[name], var
   end
 
+  @spec add_constraint(t, Constraint.t) :: t
+  def add_constraint(state, c) do
+    update_in state.constraints, fn constraints ->
+      [c|constraints]
+    end
+  end
+
   @spec update_var(t, Var.name, (Var.t -> Var.t)) :: t
   def update_var(state, name, fun) do
     update_in state.variables[name], fun

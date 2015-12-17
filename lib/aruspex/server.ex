@@ -38,7 +38,8 @@ defmodule Aruspex.Server do
   """
   @spec post(t, Constraint.t) :: pid
   defcall post(c), state: state do
-    update_in(state.constraints, & [c|&1])
+    state
+    |> State.add_constraint(c)
     |> set_and_reply(self)
   end
 
@@ -64,7 +65,7 @@ defmodule Aruspex.Server do
     |> set_and_reply(self)
   end
 
-  @doc "Returns alll defined variables"
+  @doc "Returns all defined variables"
   defcall get_terms(), state: state do
     state
     |> State.terms
