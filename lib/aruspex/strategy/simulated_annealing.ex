@@ -71,10 +71,10 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   end
 
   defp neighbour(state) do
-    key = state.variables
-          |> Dict.to_list
-          |> Dict.keys
-          |> Enum.random
+    key =
+      state
+      |> State.terms
+      |> Enum.random
     try do
       decide(state, key)
     rescue
