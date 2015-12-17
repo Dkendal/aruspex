@@ -50,6 +50,16 @@ defmodule Aruspex.State do
     state.variables[name]
   end
 
+  @spec set_var(t, Var.name, Var.t) :: t
+  def set_var(state, name, var) do
+    put_in state.variables[name], var
+  end
+
+  @spec update_var(t, Var.name, (Var.t -> Var.t)) :: t
+  def update_var(state, name, fun) do
+    update_in state.variables[name], fun
+  end
+
   @spec get_vars(t) :: variables
   def get_vars(state) do
     state.variables
@@ -91,10 +101,6 @@ defmodule Aruspex.State do
         |> set_var(name, var |> Var.set_cost(0))
     end)
     |> set_cost(0)
-  end
-
-  defp set_var(state, name, var) do
-    put_in state.variables[name], var
   end
 
   defimpl Inspect, for: __MODULE__ do

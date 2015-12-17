@@ -21,6 +21,11 @@ defmodule Aruspex.Var do
     var.binding
   end
 
+  @spec bind(t, any) :: t
+  def bind(var, value) do
+    put_in var.binding, value
+  end
+
   @spec set_cost(t, cost) :: t
   def set_cost(var, cost) do
     put_in(var.cost, cost)

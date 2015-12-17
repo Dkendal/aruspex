@@ -1,4 +1,6 @@
 defmodule Aruspex.Strategy.SimulatedAnnealing do
+  alias Aruspex.State
+  alias Aruspex.Var
   import Enum, only: [reduce: 3]
   import Aruspex.State, only: [compute_cost: 1]
   use PatternTap
@@ -51,11 +53,21 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   end
 
   defp restart(state) do
-    keys = Dict.keys state.variables
-    reduce(keys, state, fn(key, state) ->
-      value = Enum.random(state.variables[key].domain)
-      put_in state.variables[key].binding, value
-    end)
+    sample = fn var ->
+      value =
+        var
+        |> Var.domain
+        |> Enum.random
+      Var.bind(var, value)
+    end
+
+    sample_all = fn(key, state) ->
+      State.update_var(state, key, sample)
+    end
+
+    state
+    |> State.terms
+    |> reduce(state, sample_all)
   end
 
   defp neighbour(state) do
