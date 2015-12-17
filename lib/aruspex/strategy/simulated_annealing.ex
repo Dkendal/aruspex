@@ -3,7 +3,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   alias Aruspex.Var
   import Enum, only: [reduce: 3]
   import Aruspex.State, only: [compute_cost: 1]
-  use PatternTap
+  use BackPipe
 
   @moduledoc """
   Implementation or simulated annealing strategy for Aruspex solver.
@@ -57,7 +57,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
       var
       |> Var.domain
       |> Enum.random
-      |> tap(value ~> Var.bind(var, value))
+      <|> Var.bind(var)
     end
 
     sample_all = fn(key, state) ->
@@ -74,7 +74,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
       state
       |> State.terms
       |> Enum.random
-      |> tap(name ~> decide(state, name))
+      <|> decide(state)
     rescue
       Enum.EmptyError -> restart(state)
     end
@@ -87,7 +87,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
       |> Var.domain
       |> Enum.reject(& &1 == Var.binding(var))
       |> Enum.random
-      |> tap(value ~> Var.bind(var, value))
+      <|> Var.bind(var)
     end)
   end
 

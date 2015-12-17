@@ -1,6 +1,7 @@
 defmodule Aruspex.State do
   alias Aruspex.Var
   alias Aruspex.Constraint
+  use BackPipe
 
   @moduledoc """
   Defines operations on the state atom.
@@ -97,8 +98,9 @@ defmodule Aruspex.State do
     |> get_vars
     |> Enum.reduce(state, fn
       {name, var}, state ->
-        state
-        |> set_var(name, var |> Var.set_cost(0))
+        var
+        |> Var.set_cost(0)
+        <|> set_var(state, name)
     end)
     |> set_cost(0)
   end
