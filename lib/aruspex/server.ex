@@ -1,6 +1,5 @@
 defmodule Aruspex.Server do
   use ExActor.GenServer
-  use PatternTap
   use Aruspex.Constraint
 
   alias Aruspex.State
