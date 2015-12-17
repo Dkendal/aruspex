@@ -54,11 +54,10 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
 
   defp restart(state) do
     sample = fn var ->
-      value =
-        var
-        |> Var.domain
-        |> Enum.random
-      Var.bind(var, value)
+      var
+      |> Var.domain
+      |> Enum.random
+      |> tap(value ~> Var.bind(var, value))
     end
 
     sample_all = fn(key, state) ->
@@ -71,24 +70,25 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   end
 
   defp neighbour(state) do
-    key =
+    try do
       state
       |> State.terms
       |> Enum.random
-    try do
-      decide(state, key)
+      |> tap(name ~> decide(state, name))
     rescue
       Enum.EmptyError -> restart(state)
     end
   end
 
-  defp decide(_state, nil),
-    do: raise "Couldn't yield a neighbor state, key was nil"
-  defp decide(state, key) do
-    state.variables[key]
-    |> tap(v ~> Enum.reject(v.domain, & &1 == v.binding))
-    |> Enum.random
-    |> tap(v ~> put_in(state.variables[key].binding, v))
+  defp decide(state, name) do
+    state
+    |> State.update_var(name, fn var ->
+      var
+      |> Var.domain
+      |> Enum.reject(& &1 == Var.binding(var))
+      |> Enum.random
+      |> tap(value ~> Var.bind(var, value))
+    end)
   end
 
   defp temperature(n) do
