@@ -50,14 +50,30 @@ defmodule Aruspex.ConstraintTest do
     setup do
       c = constraint(variables: [:x, :y], function: fn
         [x, x] -> 1
-        [x, y] -> flunk "should be unreachable, called with #{inspect x}, #{inspect y}"
+        [x, y] -> flunk """
+        should be unreachable, called with #{inspect x}, #{inspect y}"
+        """
       end)
 
       {:ok, constraint: c}
     end
 
-    it "evaluates a constraint with a specified binding", %{constraint: constraint} do
-      assert Aruspex.Constraint.test_constraint(constraint, [x: 1, y: 1, z: 2]) == 1
+    it "evaluates a constraint with a specified binding", config do
+      assert(
+        Aruspex.Constraint.test_constraint(
+          config.constraint,
+          [x: 1, y: 1, z: 2]
+        ) == 1
+      )
+    end
+
+    context "when the constraint has a variable that is unbound"do
+      it 'raises an error' do
+        assert_raise ArgumentError, ~r/Missing:\n.*[:y]/, fn ->
+          linear(^:y == 1)
+          |> Aruspex.Constraint.test_constraint([x: 1])
+        end
+      end
     end
   end
 end

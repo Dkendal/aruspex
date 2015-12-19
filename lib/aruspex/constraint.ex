@@ -3,6 +3,7 @@ defmodule Aruspex.Constraint do
   import Record, only: :macros
   require Macro
   require Record
+  use BackPipe
 
   @moddoc """
   Contains helpers and macros for creating constraints.
@@ -96,10 +97,30 @@ defmodule Aruspex.Constraint do
   end
 
   def test_constraint(c, binding) do
-    binding = binding
-              |> Dict.take(constraint(c, :variables))
-              |> Dict.values
-    constraint(c, :function).(binding)
+    constraint(c, :variables)
+    |> Enum.map(fn variable ->
+      # Access protocol with explicit raise is used in stead of Dict.fetch!
+      # because Keyword's implementation does not allow for non atom keys
+      # ... However it's implementation of Access does.
+      binding[variable] ||
+        raise(ArgumentError, message: error_message(c, binding))
+    end)
+    <|> constraint(c, :function).()
+  end
+
+  def error_message(c, binding) do
+    actual = Dict.keys binding
+    expected = constraint(c, :variables)
+    """
+    Constaint failed to be evaluated, it was defined with variables:
+        #{inspect expected, pretty: true}
+
+    But state contains:
+        #{inspect actual, pretty: true}
+
+    Missing:
+        #{inspect (expected -- actual), pretty: true}
+    """
   end
 
   # define a variable that will appear in the body of a constraint
@@ -119,8 +140,11 @@ defmodule Aruspex.Constraint do
   defp constraint_fun bound_vars, expr, cost do
     quote do
       fn
-        unquote(bound_vars) when unquote(expr) -> 0
-        unquote(bound_vars) -> unquote(cost)
+        unquote(bound_vars) when unquote(expr) ->
+          0
+
+        unquote(bound_vars) ->
+          unquote(cost)
       end
     end
   end
