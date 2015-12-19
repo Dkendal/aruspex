@@ -98,29 +98,22 @@ defmodule Aruspex.Constraint do
 
   def test_constraint(c, binding) do
     constraint(c, :variables)
-    |> Enum.map(fn variable ->
+    |> fetch_from_state!(binding)
+    |> constraint(c, :function).()
+  end
+
+  defp fetch_from_state!(variables, binding) do
+    Enum.map(variables, fn variable ->
       # Access protocol with explicit raise is used in stead of Dict.fetch!
       # because Keyword's implementation does not allow for non atom keys
       # ... However it's implementation of Access does.
       binding[variable] ||
-        raise(ArgumentError, message: error_message(c, binding))
+        raise(
+          Aruspex.ConstraintArgumentError,
+          variables: variables,
+          binding: Dict.keys(binding)
+        )
     end)
-    <|> constraint(c, :function).()
-  end
-
-  def error_message(c, binding) do
-    actual = Dict.keys binding
-    expected = constraint(c, :variables)
-    """
-    Constaint failed to be evaluated, it was defined with variables:
-        #{inspect expected, pretty: true}
-
-    But state contains:
-        #{inspect actual, pretty: true}
-
-    Missing:
-        #{inspect (expected -- actual), pretty: true}
-    """
   end
 
   # define a variable that will appear in the body of a constraint

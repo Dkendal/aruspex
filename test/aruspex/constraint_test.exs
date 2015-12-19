@@ -69,9 +69,10 @@ defmodule Aruspex.ConstraintTest do
 
     context "when the constraint has a variable that is unbound"do
       it 'raises an error' do
-        assert_raise ArgumentError, ~r/Missing:\n.*[:y]/, fn ->
-          linear(^:y == 1)
-          |> Aruspex.Constraint.test_constraint([x: 1])
+        assert_raise Aruspex.ConstraintArgumentError, ~r/Missing:\n.*[:y]/, fn
+          ->
+            linear(^:y == 1)
+            |> Aruspex.Constraint.test_constraint([x: 1])
         end
       end
     end
