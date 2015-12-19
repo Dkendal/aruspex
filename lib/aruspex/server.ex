@@ -1,6 +1,7 @@
 defmodule Aruspex.Server do
   use ExActor.GenServer
   use Aruspex.Constraint
+  use BackPipe
 
   alias Aruspex.State
   alias Aruspex.Var
@@ -49,12 +50,10 @@ defmodule Aruspex.Server do
   """
   @spec find_solution(t) :: [{var, any}]
   defcall find_solution(), state: state do
-    case state.options.strategy.label(state) do
-      nil ->
-        raise Aruspex.Strategy.InvalidResultError, module: state.options.strategy
-      s ->
-        set_and_reply(s, State.bound_variables(s))
-    end
+    s = State.find_solution state
+    s
+    |> State.bound_variables
+    <|> set_and_reply(s)
   end
 
   @doc "Sets the strategy to be used by the searcher"

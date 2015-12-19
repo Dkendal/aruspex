@@ -22,6 +22,8 @@ defmodule Aruspex.State do
     strategy: module
   }
 
+ @type solution :: [{Var.name, any}]
+
   @type variables :: %{Var.name => Var.t}
 
   defstruct(
@@ -33,7 +35,7 @@ defmodule Aruspex.State do
     }
   )
 
-  @spec bound_variables(t) :: [{Var.name, any}]
+  @spec bound_variables(t) :: solution
   def bound_variables state do
     for {name, var} <- get_vars(state),
       do: {name, Var.binding(var)}
@@ -44,6 +46,19 @@ defmodule Aruspex.State do
     state
     |> get_vars
     |> Dict.keys
+  end
+
+  @spec find_solution(t) :: t
+  def find_solution(state) do
+    strat = get_strategy state
+    case strat.label(state) do
+      nil ->
+        raise(
+          Aruspex.Strategy.InvalidResultError,
+          module: state.options.strategy)
+      s ->
+        s
+    end
   end
 
   @spec get_var(t, Var.name) :: Var.t
@@ -110,6 +125,10 @@ defmodule Aruspex.State do
         <|> set_var(state, name)
     end)
     |> set_cost(0)
+  end
+
+  defp get_strategy(state) do
+    state.options.strategy
   end
 
   defimpl Inspect, for: __MODULE__ do
