@@ -2,6 +2,7 @@
 Please include an addition to this file with all pull requests.
 
 ## Unpublished
+- Simulated Annealing now supports configurable options to tune it
 - Strategies are now implemented as protocols, options for a strategy is set on
   the strategy struct, which is then called by strat to solve the problem.
   The only user facing change to this is `set_strategy/2`

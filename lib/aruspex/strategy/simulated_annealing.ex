@@ -26,32 +26,33 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
       s0 :: initial state
       kmax :: maximum steps
   """
-  @initial_temp 1
-  @k_max 1000
-  @cooling_constant 40
+  defstruct(
+    initial_temp: 1,
+    k_max: 1000,
+    cooling_constant: 40
+  )
 
-  defstruct []
-
-  def do_iterator(_strat, state, caller) do
+  def do_iterator(opts, state, caller) do
     restart(state)
     |> compute_cost
-    |> do_sa(0, caller)
+    |> do_sa(0, caller, opts)
   end
 
-  def do_sa(state, @k_max, caller),
+  def do_sa(state, k, caller, %{k_max: k}),
     do: found_solution(state, caller)
 
-  def do_sa(s, k, caller) do
+  def do_sa(s, k, caller, opts) do
     if State.satisfied?(s) do
       found_solution(s, caller)
     else
-      t = temperature(k/@k_max)
+      t = temperature(k, opts)
+
       s_prime = compute_cost neighbour s
 
       if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
-        do_sa(s_prime, k+1, caller)
+        do_sa(s_prime, k+1, caller, opts)
       else
-        do_sa(s, k+1, caller)
+        do_sa(s, k+1, caller, opts)
       end
     end
   end
@@ -95,8 +96,9 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
     end)
   end
 
-  defp temperature(n) do
-    @initial_temp * :math.exp(@cooling_constant * -n)
+  defp temperature(k, opts) do
+    n = k / opts.k_max
+    opts.initial_temp * :math.exp(opts.cooling_constant * -n)
   end
 
   defp acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
