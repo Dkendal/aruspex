@@ -19,18 +19,16 @@ defmodule Aruspex.Strategy.Dfs do
   end
 
   def do_dfs([{name, v}|t], state, caller) do
-    v
-    |> Var.domain
-    |> Enum.each(fn x ->
+    for value <- Var.domain(v) do
       state =
         state
-        |> State.update_var(name, &Var.bind(&1, x))
+        |> State.update_var(name, &Var.bind(&1, value))
         |> State.compute_cost
 
       if State.valid?(state) do
         do_dfs(t, state, caller)
       end
-    end)
+    end
   end
 
   defimpl Aruspex.Strategy, for: __MODULE__ do
