@@ -111,14 +111,17 @@ defmodule Aruspex.State do
     state.cost
   end
 
+  @spec valid?(t) :: boolean
   def valid?(state) do
     get_cost(state) == 0
   end
 
+  @spec complete?(t) :: boolean
   def complete?(state) do
     Enum.all? variables(state), & Var.bound? &1
   end
 
+  @spec satisfied?(t) :: boolean
   def satisfied?(state) do
     complete?(state) && valid?(state)
   end
