@@ -3,6 +3,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   alias Aruspex.Var
   import Enum, only: [reduce: 3]
   import Aruspex.State, only: [compute_cost: 1]
+  use Aruspex.Strategy
   use BackPipe
 
   @moduledoc """
@@ -25,7 +26,6 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
       s0 :: initial state
       kmax :: maximum steps
   """
-  @behaviour Aruspex.Strategy
   @initial_temp 1
   @k_max 1000
   @cooling_constant 40

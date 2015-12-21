@@ -21,6 +21,11 @@ defmodule Aruspex.Var do
     var.binding
   end
 
+  @spec bound?(t) :: bool
+  def bound?(var) do
+    var.binding != nil
+  end
+
   @spec bind(t, any) :: t
   def bind(var, value) do
     put_in var.binding, value

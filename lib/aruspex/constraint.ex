@@ -96,10 +96,23 @@ defmodule Aruspex.Constraint do
     end
   end
 
+  def bound?(c, binding) do
+    binding
+    |> Dict.take(constraint(c, :variables))
+    |> Dict.values
+    |> Enum.all?(& &1 != nil)
+  end
+
   def test_constraint(c, binding) do
-    constraint(c, :variables)
-    |> fetch_from_state!(binding)
-    |> constraint(c, :function).()
+    bound?(c, binding)
+    |> case do
+      false ->
+        0
+      true ->
+        constraint(c, :variables)
+        |> fetch_from_state!(binding)
+        |> constraint(c, :function).()
+    end
   end
 
   defp fetch_from_state!(variables, binding) do
@@ -111,7 +124,7 @@ defmodule Aruspex.Constraint do
         raise(
           Aruspex.ConstraintArgumentError,
           variables: variables,
-          binding: Dict.keys(binding)
+          binding: binding
         )
     end)
   end

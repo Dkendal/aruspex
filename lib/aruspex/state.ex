@@ -111,6 +111,23 @@ defmodule Aruspex.State do
     state.cost
   end
 
+  def valid?(state) do
+    get_cost(state) == 0
+  end
+
+  def complete?(state) do
+    Enum.all? variables(state), & Var.bound? &1
+  end
+
+  def satisfied?(state) do
+    complete?(state) && valid?(state)
+  end
+
+  def variables(state) do
+    state.variables
+    |> Dict.values
+  end
+
   defp set_cost(state, cost) do
     put_in state.cost, cost
   end
