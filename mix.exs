@@ -11,15 +11,20 @@ defmodule Aruspex.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       elixirc_paths: elixirc_paths(Mix.env),
-      deps: deps,
-      applications: application(Mix.env)
+      deps: deps
     ]
   end
 
   # Configuration for the OTP application
   #
   # Type `mix help compile.app` for more information
-  def application(_all) do
+  def application do
+    [
+      applications: applications(Mix.env)
+    ]
+  end
+
+  def applications(_all) do
     [:logger, :dbg]
   end
 
