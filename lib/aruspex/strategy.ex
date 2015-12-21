@@ -1,13 +1,7 @@
-defmodule Aruspex.Strategy do
-  use Behaviour
+defprotocol Aruspex.Strategy do
   alias Aruspex.State
+  @type t :: __MODULE__.t
 
-  @doc "Binds values to variables that statisfy defined constraints."
-  defcallback label(state :: State) :: State
-
-  def __using__(_) do
-    quote do
-      @behaviour Aruspex.Strategy
-    end
-  end
+  @spec do_iterator(t, State.t, pid) :: Enumerable.t
+  def do_iterator(strat, state, caller)
 end

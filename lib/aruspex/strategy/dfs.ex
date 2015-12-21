@@ -1,37 +1,20 @@
 defmodule Aruspex.Strategy.Dfs do
   alias Aruspex.State
   alias Aruspex.Var
-  use Aruspex.Strategy
+  import Aruspex.Strat.Helpers
 
-  def label(state) do
+  defstruct []
+
+  def do_iterator(_strat, state, caller) do
     state
-    |> iterator
-    |> Enum.take(1)
-    |> hd
-  end
-
-  def iterator(state, opts \\ [timeout: 5000])
-  def iterator(state, timeout: timeout) do
-    vars =
-      state
-      |> State.get_vars
-      |> Enum.to_list
-
-    child = spawn_link(__MODULE__, :do_dfs, [vars, state, self])
-
-    Stream.repeatedly(fn ->
-      receive do
-        {^child, state} ->
-          state
-      after timeout ->
-        nil
-      end
-    end)
+    |> State.get_vars
+    |> Enum.to_list
+    |> do_dfs(state, caller)
   end
 
   def do_dfs([], state, caller) do
     if State.satisfied?(state) do
-      send caller, {self, state}
+      found_solution(state, caller)
     end
   end
 
@@ -41,12 +24,18 @@ defmodule Aruspex.Strategy.Dfs do
     |> Enum.each(fn x ->
       state =
         state
-        |> State.update_var(name, & Var.bind(&1, x))
+        |> State.update_var(name, &Var.bind(&1, x))
         |> State.compute_cost
 
       if State.valid?(state) do
         do_dfs(t, state, caller)
       end
     end)
+  end
+
+  defimpl Aruspex.Strategy, for: __MODULE__ do
+    def do_iterator(strat, state, caller) do
+      Aruspex.Strategy.Dfs.do_iterator(strat, state, caller)
+    end
   end
 end

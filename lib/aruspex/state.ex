@@ -51,7 +51,8 @@ defmodule Aruspex.State do
   @spec find_solution(t) :: t
   def find_solution(state) do
     strat = get_strategy state
-    case strat.label(state) do
+    Aruspex.Strat.label(strat, state)
+    |> case do
       nil ->
         raise(
           Aruspex.Strategy.InvalidResultError,
@@ -118,7 +119,7 @@ defmodule Aruspex.State do
 
   @spec complete?(t) :: boolean
   def complete?(state) do
-    Enum.all? variables(state), & Var.bound? &1
+    Enum.all? variables(state), &Var.bound?/1
   end
 
   @spec satisfied?(t) :: boolean

@@ -3,7 +3,7 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   alias Aruspex.Var
   import Enum, only: [reduce: 3]
   import Aruspex.State, only: [compute_cost: 1]
-  use Aruspex.Strategy
+  import Aruspex.Strat.Helpers
   use BackPipe
 
   @moduledoc """
@@ -30,37 +30,20 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   @k_max 1000
   @cooling_constant 40
 
-  def label(state) do
-    iterator(state)
-    |> Enum.take(1)
-    |> hd
-  end
+  defstruct []
 
-  def iterator(state, opts \\ [timeout: 5000])
-  def iterator(state, timeout: timeout) do
-    this = self
-    child = spawn_link fn ->
-      restart(state)
-      |> compute_cost
-      |> do_sa(0, this)
-    end
-
-    Stream.repeatedly fn ->
-      receive do
-        {^child, :solution, state} ->
-          state
-      after timeout ->
-        {:error, "no solution"}
-      end
-    end
+  def do_iterator(_strat, state, caller) do
+    restart(state)
+    |> compute_cost
+    |> do_sa(0, caller)
   end
 
   def do_sa(state, @k_max, caller),
-    do: send(caller, {self, :solution, state})
+    do: found_solution(state, caller)
 
   def do_sa(s, k, caller) do
     if State.satisfied?(s) do
-      send(caller, {self, :solution, s})
+      found_solution(s, caller)
     else
       t = temperature(k/@k_max)
       s_prime = compute_cost neighbour s
@@ -119,5 +102,11 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   defp acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
   defp acceptance_probability(e, e_p, temp) do
     :math.exp(-(e_p - e)/temp)
+  end
+
+  defimpl Aruspex.Strategy, for: __MODULE__ do
+    def do_iterator(strat, state, caller) do
+      Aruspex.Strategy.SimulatedAnnealing.do_iterator(strat, state, caller)
+    end
   end
 end
