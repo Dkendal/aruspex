@@ -1,7 +1,7 @@
 defmodule Examples.MapColouring do
   defmacro test strategy do
     quote do
-      test "#{inspect unquote strategy} solves map colouring" do
+      test "#{inspect unquote(strategy).__struct__} solves map colouring" do
         import Aruspex.Server
         use Aruspex.Constraint
 

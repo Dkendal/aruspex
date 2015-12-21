@@ -1,7 +1,7 @@
 defmodule Examples.FourQueens do
   defmacro test strategy do
     quote do
-      test "#{inspect unquote strategy} solves 4 queens" do
+      test "#{inspect unquote(strategy).__struct__} solves 4 queens" do
         import Enum
         import Aruspex.Server
         use Aruspex.Constraint
