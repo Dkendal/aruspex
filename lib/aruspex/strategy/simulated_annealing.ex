@@ -30,25 +30,27 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   @k_max 1000
   @cooling_constant 40
 
-  def label(state, k\\-1)
-
-  def label(state, -1) do
+  def label(state) do
     restart(state)
     |> compute_cost
-    |> label(0)
+    |> do_sa(0)
   end
 
-  def label(%{cost: 0} = s, _), do: s
-  def label(s, @k_max), do: s
+  def do_sa(state, @k_max),
+    do: state
 
-  def label(s, k) do
-    t = temperature(k/@k_max)
-    s_prime = compute_cost neighbour s
-
-    if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
-      label(s_prime, k+1)
+  def do_sa(s, k) do
+    if State.satisfied?(s) do
+      s
     else
-      label(s, k+1)
+      t = temperature(k/@k_max)
+      s_prime = compute_cost neighbour s
+
+      if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
+        do_sa(s_prime, k+1)
+      else
+        do_sa(s, k+1)
+      end
     end
   end
 
