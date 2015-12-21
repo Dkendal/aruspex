@@ -7,7 +7,12 @@ defmodule Aruspex.ConstraintArgumentError do
     }
   end
 
-  def message(expected, actual) do
+  def message(expected, binding) do
+    actual = Dict.keys binding
+    unbound =
+      binding
+      |> Enum.filter(fn {k, v} -> v == nil end)
+      |> Dict.keys
     """
     Constaint failed to be evaluated, it was defined with variables:
         #{inspect expected, pretty: true}
@@ -17,6 +22,12 @@ defmodule Aruspex.ConstraintArgumentError do
 
     Missing:
         #{inspect (expected -- actual), pretty: true}
+
+    Unbound:
+        #{inspect unbound}
+
+    Binding:
+        #{inspect binding}
     """
   end
 end
