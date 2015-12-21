@@ -31,25 +31,44 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   @cooling_constant 40
 
   def label(state) do
-    restart(state)
-    |> compute_cost
-    |> do_sa(0)
+    iterator(state)
+    |> Enum.take(1)
+    |> hd
   end
 
-  def do_sa(state, @k_max),
-    do: state
+  def iterator(state, opts \\ [timeout: 5000])
+  def iterator(state, timeout: timeout) do
+    this = self
+    child = spawn_link fn ->
+      restart(state)
+      |> compute_cost
+      |> do_sa(0, this)
+    end
 
-  def do_sa(s, k) do
+    Stream.repeatedly fn ->
+      receive do
+        {^child, :solution, state} ->
+          state
+      after timeout ->
+        {:error, "no solution"}
+      end
+    end
+  end
+
+  def do_sa(state, @k_max, caller),
+    do: send(caller, {self, :solution, state})
+
+  def do_sa(s, k, caller) do
     if State.satisfied?(s) do
-      s
+      send(caller, {self, :solution, s})
     else
       t = temperature(k/@k_max)
       s_prime = compute_cost neighbour s
 
       if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
-        do_sa(s_prime, k+1)
+        do_sa(s_prime, k+1, caller)
       else
-        do_sa(s, k+1)
+        do_sa(s, k+1, caller)
       end
     end
   end
