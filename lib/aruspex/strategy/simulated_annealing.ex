@@ -3,7 +3,6 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
   alias Aruspex.Var
   import Enum, only: [reduce: 3]
   import Aruspex.State, only: [compute_cost: 1]
-  import Aruspex.Strat.Helpers
   use BackPipe
 
   @moduledoc """
@@ -32,18 +31,18 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
     cooling_constant: 40
   )
 
-  def do_iterator(opts, state, caller) do
+  def do_iterator(strategy, state, caller) do
     restart(state)
     |> compute_cost
-    |> do_sa(0, caller, opts)
+    |> do_sa(0, caller, strategy)
   end
 
   def do_sa(state, k, caller, %{k_max: k}),
-    do: found_solution(state, caller)
+    do: send caller, {:done, state}
 
   def do_sa(s, k, caller, opts) do
     if State.satisfied?(s) do
-      found_solution(s, caller)
+      send caller, {:solution, s}
     else
       t = temperature(k, opts)
 

@@ -1,7 +1,6 @@
 defmodule Aruspex.Strategy.Dfs do
   alias Aruspex.State
   alias Aruspex.Var
-  import Aruspex.Strat.Helpers
 
   defstruct []
 
@@ -14,7 +13,7 @@ defmodule Aruspex.Strategy.Dfs do
 
   def do_dfs([], state, caller) do
     if State.satisfied?(state) do
-      found_solution(state, caller)
+      send caller, {:solution, state}
     end
   end
 
