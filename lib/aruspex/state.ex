@@ -90,20 +90,24 @@ defmodule Aruspex.State do
   end
 
   @spec compute_cost(t) :: t
-  @spec compute_cost(t, [Constraint.t], any) :: t
   def compute_cost state do
-    zero_cost(state)
-    |> compute_cost(state.constraints, 0)
-  end
+    state = zero_cost state
 
-  def compute_cost state, [], acc do
-    put_in state.cost, acc
-  end
-
-  def compute_cost state, [constraint|t], acc do
     binding = bound_variables(state)
-    cost = Constraint.test_constraint(constraint, binding)
-    compute_cost(state, t, cost + acc)
+
+    cost =
+      state
+      |> get_constraints
+      |> Enum.reduce(0, fn (constraint, cost) ->
+        cost + Constraint.test_constraint(constraint, binding)
+      end)
+
+    put_in state.cost, cost
+  end
+
+  @spec get_constraints(t) :: [Constraint.t]
+  def get_constraints(state) do
+    state.constraints
   end
 
   @spec get_cost(State.t) :: Var.cost
