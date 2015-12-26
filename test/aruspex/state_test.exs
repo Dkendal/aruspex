@@ -22,12 +22,11 @@ defmodule Aruspex.StateTest do
         end)
       end)
 
-      state = State.compute_cost(state)
-
       {:ok, %{state: state}}
     end
 
-    it "returns the cost, and an updated state", c do
+    it "returns an updated state", c do
+      assert %State{} = State.compute_cost(c.state)
     end
   end
 end
