@@ -1,103 +1,71 @@
 defmodule Aruspex.Strategy.SimulatedAnnealing do
-  alias Aruspex.State
-  alias Aruspex.Var
-  import Enum, only: [reduce: 3]
-  import Aruspex.State, only: [compute_cost: 1]
-  use BackPipe
+  @behaviour Aruspex.Strategy
 
-  @moduledoc """
-  Implementation or simulated annealing strategy for Aruspex solver.
+  defstruct problem: nil,
+            initial_temp: 1,
+            k_max: 8000,
+            cooling_constant: 40
 
-  Good at finding okay, solutions quickly in large problem spaces - not so good
-  at finding optimal solutions.
+  def set_strategy(problem, opts \\ []) do
+    opts = Enum.into opts, %{}
+    struct __MODULE__, Map.put(opts, :problem, problem)
+  end
+end
 
-  More info on [wikipedia](https://en.wikipedia.org/wiki/Simulated_annealing).
+defimpl Enumerable, for: Aruspex.Strategy.SimulatedAnnealing do
+  alias Aruspex.Strategy.SimulatedAnnealing, as: SA
+  alias Aruspex.Evaluation
+  import Aruspex.Problem
+  import Evaluation
+  use Aruspex.Strategy
 
-  Pseudo-code algorithm:
-      Let s = s0
-      For k = 0 through kmax (exclusive):
-      T ← temperature(k/kmax)
-      Pick a random neighbour, snew ← neighbour(s)
-      If P(E(s), E(snew), T) > random(0, 1), move to the new state:
-      s ← snew
-      Output: the final state s
-
-      s0 :: initial state
-      kmax :: maximum steps
-  """
-  defstruct(
-    initial_temp: 1,
-    k_max: 1000,
-    cooling_constant: 40
-  )
-
-  def do_iterator(strategy, state, caller) do
-    restart(state)
-    |> compute_cost
-    |> do_sa(0, caller, strategy)
+  def reduce(s, {:cont, acc}, fun) do
+    binding = restart s.problem
+    eval = Aruspex.Evaluation.new(s.problem, binding)
+    do_reduce(evaluation(eval), s, {:cont, acc}, fun)
   end
 
-  def do_sa(state, k, caller, %{k_max: k}),
-    do: send caller, {:done, state}
+  def do_reduce(e, s, {:halt, acc}, fun), do: {:halted, acc}
 
-  def do_sa(s, k, caller, opts) do
-    if State.satisfied?(s) do
-      send caller, {:solution, s}
+  def do_reduce(%Evaluation{valid?: true} = e, s, {:cont, acc}, fun) do
+    do_reduce bind(e, restart(s.problem)), s, fun.(e, acc), fun
+  end
+
+  def do_reduce(%Evaluation{step: k} = e, %SA{k_max: k}, {:cont, acc}, fun) do
+    {:done, fun.(e, acc)}
+  end
+
+  def do_reduce(eval, s, acc, fun) do
+    t = temperature(eval.step, s)
+
+    candidate = evaluation neighbour eval
+
+    if acceptance_probability(energy(eval), energy(candidate), t) > :rand.uniform do
+      do_reduce(candidate, s, acc, fun)
     else
-      t = temperature(k, opts)
-
-      s_prime = compute_cost neighbour s
-
-      if acceptance_probability(s.cost, s_prime.cost, t) > :rand.uniform do
-        do_sa(s_prime, k+1, caller, opts)
-      else
-        do_sa(s, k+1, caller, opts)
-      end
+      eval
+      |> step
+      |> do_reduce(s, acc, fun)
     end
   end
 
-  defp restart(state) do
-    sample = fn var ->
-      var
-      |> Var.domain
-      |> Enum.random
-      <|> Var.bind(var)
-    end
-
-    sample_all = fn(key, state) ->
-      State.update_var(state, key, sample)
-    end
-
-    state
-    |> State.terms
-    |> reduce(state, sample_all)
+  def energy(%{total_violations: v, total_cost: c}) do
+    v * 100_000_000 + c
   end
 
-  defp neighbour(state) do
-    try do
-      state
-      |> State.terms
-      |> Enum.random
-      <|> decide(state)
-    rescue
-      Enum.EmptyError -> restart(state)
+  def neighbour(evaluation) do
+    problem = evaluation.problem
+    v = Enum.random variables(problem)
+    x = variable(problem, v) |> elem(1) |> Enum.random
+
+    update_in evaluation.binding, fn b ->
+      put_in b[v], x
     end
   end
 
-  defp decide(state, name) do
-    state
-    |> State.update_var(name, fn var ->
-      var
-      |> Var.domain
-      |> Enum.reject(& &1 == Var.binding(var))
-      |> Enum.random
-      <|> Var.bind(var)
-    end)
-  end
-
-  defp temperature(k, opts) do
-    n = k / opts.k_max
-    opts.initial_temp * :math.exp(opts.cooling_constant * -n)
+  defp temperature(k, s) do
+    n = k / s.k_max
+    s.initial_temp * :math.exp(s.cooling_constant * -n)
   end
 
   defp acceptance_probability(e, e_p, _temp) when e > e_p, do: 1
@@ -105,9 +73,10 @@ defmodule Aruspex.Strategy.SimulatedAnnealing do
     :math.exp(-(e_p - e)/temp)
   end
 
-  defimpl Aruspex.Strategy, for: __MODULE__ do
-    def do_iterator(strat, state, caller) do
-      Aruspex.Strategy.SimulatedAnnealing.do_iterator(strat, state, caller)
-    end
+  def restart(p) do
+    labeled_variables(p)
+    |> Enum.map(fn {v, d} ->
+      {v, Enum.random(d)}
+    end)
   end
 end
