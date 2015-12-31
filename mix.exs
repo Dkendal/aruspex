@@ -25,7 +25,7 @@ defmodule Aruspex.Mixfile do
   end
 
   def applications(_all) do
-    [:logger, :dbg]
+    [:logger]
   end
 
   def description do
@@ -50,7 +50,6 @@ defmodule Aruspex.Mixfile do
 
   defp deps do
     [
-      {:dbg, github: "fishcakez/dbg"},
       {:dialyze, "~> 0.2", only: :dev},
       {:ex_doc, "~> 0.10", only: :docs},
       {:ex_spec, github: "dkendal/ex_spec", branch: "master", only: :test},
