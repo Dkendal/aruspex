@@ -1,47 +1,45 @@
 defmodule Examples.MapColouring do
-  defmacro test strategy do
-    quote do
-      test "#{inspect unquote(strategy).__struct__} solves map colouring" do
-        import Aruspex.Server
-        use Aruspex.Constraint
+  @shortdoc "Returns a new example problem"
 
-        {:ok, problem} = start_link
+  @doc """
+  Returns a constraint problem that formulates the map colouring problem, using
+  Australias and its territories as a basis for the problem.
 
-        variables = [
-          wa  = :western_australia,
-          nt  = :nothern_territory,
-          q   = :queensland,
-          sa  = :south_australia,
-          nsw = :new_south_wales,
-          v   = :victoria,
-          t   = :tasmania
-        ]
+  This specific instance of the problem is restricts the domain of each
+  variable to three values (red, green, and blue).
+  """
 
-        domain = [:red, :green, :blue]
+  @spec new() :: Aruspex.Problem
+  def new do
+    import Aruspex.Problem, except: [new: 0]
+    import Aruspex.Strategy
 
-        Enum.map variables, &(variable problem, &1, domain)
+    colors = ~w(red green blue)a
 
-        problem
-        |> set_search_strategy(unquote strategy)
-        # adjacent territories cannot be the same colour
-        |> post(linear ^wa != ^nt)
-        |> post(linear ^wa != ^sa)
-        |> post(linear ^sa != ^nt)
-        |> post(linear ^sa != ^q)
-        |> post(linear ^sa != ^nsw)
-        |> post(linear ^sa != ^v)
-        |> post(linear ^nt != ^q)
-        |> post(linear ^q != ^nsw)
-        |> post(linear ^nsw != ^v)
-        |> find_solution
+    variables = [
+      wa  = :western_australia,
+      nt  = :nothern_territory,
+      q   = :queensland,
+      sa  = :south_australia,
+      nsw = :new_south_wales,
+      v   = :victoria,
+            :tasmania
+    ]
 
-        # minimum colouring is 3, a value greater than three indicates that a
-        # hard constraint was violated
-        # TODO replace this with a constrained variable and clearer validity
-        # checking
-        cost = Aruspex.State.get_cost :sys.get_state problem
-        assert cost == 0
-      end
-    end
+    problem = Aruspex.Problem.new
+    for v <- variables, do: add_variable(problem, v, colors)
+
+    problem
+    |> post(wa,   nt,   & &1 != &2)
+    |> post(wa,   sa,   & &1 != &2)
+    |> post(sa,   nt,   & &1 != &2)
+    |> post(sa,   q,    & &1 != &2)
+    |> post(sa,   nsw,  & &1 != &2)
+    |> post(sa,   v,    & &1 != &2)
+    |> post(nt,   q,    & &1 != &2)
+    |> post(q,    nsw,  & &1 != &2)
+    |> post(nsw,  v,    & &1 != &2)
+
+    problem
   end
 end
