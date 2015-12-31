@@ -6,6 +6,8 @@ defmodule Aruspex.Strategy.DfsTest do
     |> Aruspex.Strategy.Dfs.set_strategy()
     |> Enum.take(1)
 
+    Aruspex.Logger.log_stats([result])
+
     assert result.valid? == true
   end
 end
