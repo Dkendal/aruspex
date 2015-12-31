@@ -10,8 +10,9 @@ defmodule Aruspex.Strategy.Dfs do
 end
 
 defimpl Enumerable, for: Aruspex.Strategy.Dfs do
+  alias Aruspex.Evaluation
   import Aruspex.Problem
-  import Aruspex.Evaluation
+  import Evaluation
 
   def member?(_, _), do: {:error, __MODULE__}
   def count(_), do: {:error, __MODULE__}
@@ -49,26 +50,28 @@ defimpl Enumerable, for: Aruspex.Strategy.Dfs do
   end
 
   def do_search(%{problem: g}, caller) do
+    eval = Evaluation.new g, %{}
     g
     |> labeled_variables(order: :most_constrained)
-    |> do_dfs(%{}, g, caller)
+    |> do_dfs(eval, caller)
     send caller, :done
   end
 
-  def do_dfs([{var, domain} | t], binding, g, caller) do
+  def do_dfs([{var, domain} | t], eval, caller) do
     Enum.each domain, fn value ->
-      binding = put_in binding[var], value
+      eval = put_in(eval.binding[var], value)
+              |> evaluation
 
-      if evaluation(g, binding).valid? do
-        do_dfs(t, binding, g, caller)
+      if eval.valid? do
+        do_dfs(t, eval, caller)
       end
     end
   end
 
   # fully bound
-  def do_dfs([], binding, g, caller) do
-    if evaluation(g, binding).valid? do
-      send caller, {:cont, binding}
+  def do_dfs([], eval, caller) do
+    if eval.valid? do
+      send caller, {:cont, eval}
     end
   end
 end
