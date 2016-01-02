@@ -1,4 +1,7 @@
 defmodule Aruspex.Logger do
+  require Aruspex.Problem
+  import Aruspex.Problem, only: :macros
+
   def log_stats([]), do: :ok
 
   def log_stats([eval | t]) do
@@ -31,7 +34,7 @@ defmodule Aruspex.Logger do
       "#{
         String.duplicate("\t", indent_level)
       }#{
-        apply String, f, [to_string(k), padding(h)]
+        apply String, f, [print_var(k), padding(h)]
       } #{d} #{
         pretty v, d, f, indent_level + 1
       }"
@@ -47,5 +50,13 @@ defmodule Aruspex.Logger do
         |> inspect
         |> String.length
     l - 1
+  end
+
+  defp print_var(hidden id: id) do
+    "hidden_variable#{id}"
+  end
+
+  defp print_var(v) do
+    to_string v
   end
 end
