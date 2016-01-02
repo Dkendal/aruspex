@@ -50,7 +50,7 @@ defimpl Enumerable, for: Aruspex.Strategy.Dfs do
   end
 
   def do_search(%{problem: g}, caller) do
-    eval = Evaluation.new g, %{}
+    eval = %Evaluation{problem: g}
     g
     |> labeled_variables(order: :most_constrained)
     |> do_dfs(eval, caller)
