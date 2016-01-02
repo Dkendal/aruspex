@@ -1,46 +1,41 @@
 defmodule Aruspex.Problem do
+  import Record
+  require Record
+
+  defrecord :csp, graph: nil
+
   @opaque  constraint  ::  :digraph.edge
-  @opaque  t           ::  :digraph.graph
+  @opaque  t           ::  record(:csp, graph: :digraph.graph)
   @opaque  variable    ::  :digraph.vertex
   @type    binding     ::  %{variable => value}
   @type    domain      ::  Enumerable.t
   @type    value       ::  any
 
-  import :digraph, only: [
-    add_edge: 4,
-    add_vertex: 3,
-    in_degree: 2,
-    out_degree: 2
-  ]
-
-  import :digraph_utils, only: [
-    subgraph: 2
-  ]
-
   @spec new :: t
   def new do
-    :digraph.new
+    csp graph: :digraph.new
   end
 
   @spec add_variable(t, variable, domain) :: t
-  def add_variable(problem, v, domain) do
-    add_vertex(problem, v, domain)
+  def add_variable(csp(graph: g) = problem, v, domain) do
+    :digraph.add_vertex(g, v, domain)
     problem
   end
 
   @spec post(t, variable, variable, constraint) :: t
-  def post(problem, v1, v2, c) do
-    problem
-    |> add_edge(v1, v2, c)
+  def post(csp(graph: g) = problem, v1, v2, c) do
+    :digraph.add_edge(g, v1, v2, c)
     problem
   end
 
-  def subproblem(problem, binding) do
-    :digraph_utils.subgraph problem, Dict.keys(binding)
+  def subproblem(csp(graph: g), binding) do
+    g = :digraph_utils.subgraph g, Dict.keys(binding)
+
+    csp graph: g
   end
 
-  def degree(p, v),
-    do: in_degree(p, v) + out_degree(p, v)
+  def degree(csp(graph: p), v),
+    do: :digraph.in_degree(p, v) + :digraph.out_degree(p, v)
 
   def labeled_variables(p, opts \\ []),
     do: variables(p, opts) |> Enum.map(&variable(p, &1))
@@ -53,10 +48,18 @@ defmodule Aruspex.Problem do
   def variables(p, [{:order, :most_constrained} | opts]),
     do: variables(p, opts) |> Enum.sort_by(&degree(p, &1), &>=/2)
 
-  defdelegate variables(problem), to: :digraph, as: :vertices
+  def variables(csp(graph: g)),
+    do: :digraph.vertices(g)
 
-  defdelegate variable(problem, v), to: :digraph, as: :vertex
-  defdelegate constraints(problem), to: :digraph, as: :edges
-  defdelegate constraint(problem, e), to: :digraph, as: :edge
-  defdelegate delete(problem), to: :digraph
+  def variable(csp(graph: g), v),
+    do: :digraph.vertex(g, v)
+
+  def constraints(csp(graph: g)),
+    do: :digraph.edges(g)
+
+  def constraint(csp(graph: g), e),
+    do: :digraph.edge(g, e)
+
+  def delete(csp(graph: g)),
+    do: :digraph.delete(g)
 end
