@@ -13,6 +13,21 @@ defmodule Aruspex.Evaluation do
             problem: nil,
             __previous__: nil
 
+  @type t :: %__MODULE__{
+    valid?: boolean,
+    complete?: boolean,
+    binding: Problem.binding,
+    total_violations: cost,
+    total_cost: cost,
+    step: number,
+    cost: %{Problem.variable => cost},
+    violations: %{Problem.variable => number},
+    problem: Problem.t,
+    __previous__: t
+  }
+
+  @type cost :: number
+
   defdelegate get_and_update(e, a, f), to: Map
 
   def complete(evaluation),
