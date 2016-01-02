@@ -2,12 +2,12 @@ defmodule Aruspex.Strategy.DfsTest do
   use Aruspex.Case
 
   it "solves the map colouring problem" do
-    [result] = Examples.MapColouring.new
+    results = Examples.MapColouring.new
     |> Aruspex.Strategy.Dfs.set_strategy()
-    |> Enum.take(1)
+    |> Enum.take(2)
 
-    Aruspex.Logger.log_stats([result])
+    Aruspex.Logger.log_stats results
 
-    assert result.valid? == true
+    assert (hd results).valid? == true
   end
 end

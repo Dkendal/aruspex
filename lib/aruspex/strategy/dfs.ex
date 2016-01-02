@@ -1,3 +1,7 @@
+alias Aruspex.Evaluation
+import Aruspex.Problem
+import Evaluation
+
 defmodule Aruspex.Strategy.Dfs do
   @behaviour Aruspex.Strategy
 
@@ -10,68 +14,35 @@ defmodule Aruspex.Strategy.Dfs do
 end
 
 defimpl Enumerable, for: Aruspex.Strategy.Dfs do
-  alias Aruspex.Evaluation
-  import Aruspex.Problem
-  import Evaluation
-
-  def member?(_, _), do: {:error, __MODULE__}
-  def count(_), do: {:error, __MODULE__}
+  use Aruspex.Strategy
 
   def reduce(s, {:cont, acc}, fun) do
-    start(s)
-    do_reduce(s, {:cont, acc}, fun)
-  end
+    eval = %Evaluation{problem: s.problem}
 
-  def do_reduce(_s, {:halt, acc}, _fun), do: {:halted, acc}
-
-  def do_reduce(s, {:cont, acc}, fun) do
-    receive do
-      {:cont, solution} ->
-        do_reduce(s, fun.(solution, acc), fun)
-
-      :done ->
-        {:done, acc}
-
-    after s.timeout ->
-      raise "timeout"
-    end
-  end
-
-  def start(strategy) do
-    caller = self
-    spawn_link fn ->
-      try do
-      do_search(strategy, caller)
-      catch
-      ArgumentError ->
-        Proccess.exit(self, :normal)
-      end
-    end
-  end
-
-  def do_search(%{problem: g}, caller) do
-    eval = %Evaluation{problem: g}
-    g
+    s.problem
     |> labeled_variables(order: :most_constrained)
-    |> do_dfs(eval, caller)
-    send caller, :done
-  end
-
-  def do_dfs([{var, domain} | t], eval, caller) do
-    Enum.each domain, fn value ->
-      eval = put_in(eval.binding[var], value)
-              |> evaluation
-
-      if eval.valid? do
-        do_dfs(t, eval, caller)
-      end
-    end
+    |> do_reduce(eval, acc, fun)
   end
 
   # fully bound
-  def do_dfs([], eval, caller) do
-    if eval.valid? do
-      send caller, {:cont, eval}
+  def do_reduce([], eval, acc, fun) do
+    (if eval.valid?, do: fun.(eval, acc), else: {:cont, acc})
+    |> case do
+      # fun.(eval, acc) may return {:cont, acc}, so it needs to be caught
+      {:cont, acc} ->
+        {[], acc}
+      x ->
+        x
+    end
+  end
+
+  def do_reduce([{var, domain} | t], eval, acc, fun) do
+    Enum.flat_map_reduce domain, acc, fn value, acc ->
+      eval =
+        put_in(eval.binding[var], value)
+        |> evaluation
+
+      if eval.valid?, do: do_reduce(t, eval, acc, fun), else: {[], acc}
     end
   end
 end
