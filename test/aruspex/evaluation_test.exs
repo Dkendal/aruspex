@@ -58,5 +58,27 @@ defmodule Aruspex.EvaluationTest do
         assert result.violations == %{x: 1, y: 1}
       end
     end
+
+    describe "hidden_assigment/1" do
+      it "assigns the substituted variables to the hidden variable" do
+        p = Problem.new
+
+        p |> Problem.add_variable(:x, 1..9)
+          |> Problem.add_variable(:y, 1..9)
+          |> Problem.add_variable(:z, 1..9)
+          |> Problem.post([:x, :y, :z], & &1 + &2 == &3)
+
+        result = %Evaluation{problem: p, binding: %{x: 1, y: 2, z: 4}}
+                  |> Evaluation.hidden_assigment
+
+        assert Enum.any? result.binding, fn
+          {{:hidden, _, _}, %{x: 1, y: 2, z: 4}} ->
+            true
+
+          {_, _} ->
+            false
+        end
+      end
+    end
   end
 end

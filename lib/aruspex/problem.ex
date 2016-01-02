@@ -3,8 +3,9 @@ defmodule Aruspex.Problem do
   require Record
 
   defrecord :csp, graph: nil
+  defrecord :hidden, id: nil, variables: nil
 
-  @opaque  constraint  ::  :digraph.edge
+  @opaque  constraint  ::  (... -> boolean | number)
   @opaque  t           ::  record(:csp, graph: :digraph.graph)
   @opaque  variable    ::  :digraph.vertex
   @type    binding     ::  %{variable => value}
@@ -20,6 +21,26 @@ defmodule Aruspex.Problem do
   def add_variable(csp(graph: g) = problem, v, domain) do
     :digraph.add_vertex(g, v, domain)
     problem
+  end
+
+  @doc """
+  Defines a nonbinary constraint. Internally all nonbinary constraints are
+  converted using a hidden variable translation. The end result is an
+  additional variable, and 1 constraint added to the constraint graph. This
+  implementation avoids the traditional N + 1 additional constraints by
+  preforming a direct assignment of substituted variables during the evaluation
+  """
+  @spec post(t, [variable], constraint) :: t
+  def post(problem, v, c) do
+    hidden = new_hidden(v)
+
+    ^problem = add_variable(problem, hidden, :hidden)
+
+    new_constraint = fn variable, _ ->
+      apply(c, (for v <- v, do: variable[v]))
+    end
+
+    post(problem, hidden, hidden, new_constraint)
   end
 
   @spec post(t, variable, variable, constraint) :: t
@@ -62,4 +83,15 @@ defmodule Aruspex.Problem do
 
   def delete(csp(graph: g)),
     do: :digraph.delete(g)
+
+  @doc "Returns the number of variables in the constraint graph"
+  def no_variables(csp(graph: g)),
+    do: :digraph.no_vertices(g)
+
+  @doc "Returns the number of constraints in the constraint graph"
+  def no_constraints(csp(graph: g)),
+    do: :digraph.no_edges(g)
+
+  defp new_hidden(variables),
+    do: hidden(id: System.unique_integer, variables: variables)
 end

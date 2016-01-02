@@ -1,6 +1,7 @@
 defmodule Aruspex.Evaluation do
   alias Aruspex.Constraint
   import Aruspex.Problem
+  require Aruspex.Problem
 
   defstruct valid?: false,
             complete?: false,
@@ -59,17 +60,32 @@ defmodule Aruspex.Evaluation do
     end
   end
 
+  @spec hidden_assigment(t) :: t
+  def hidden_assigment(evaluation) do
+    evaluation.problem
+    |> variables
+    |> Enum.reduce(evaluation, fn
+      hidden(variables: components) = v, evaluation ->
+        assignment = Dict.take(evaluation.binding, components)
+
+        put_in evaluation.binding[v], assignment
+
+      _v, evaluation ->
+        evaluation
+    end)
+  end
+
   @default_evaluation_options %{
     fail_fast: false
   }
 
   def evaluation(evaluation, opts \\ @default_evaluation_options)
   def evaluation(evaluation, opts) do
-
     evaluation =
       evaluation
       |> reset
       |> step
+      |> hidden_assigment
 
     do_evaluation = &do_evaluation &1, &2, opts
 
