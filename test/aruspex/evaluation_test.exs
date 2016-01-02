@@ -24,8 +24,7 @@ defmodule Aruspex.EvaluationTest do
 
   test "evaluation/1", c do
     e =
-      c.problem
-      |> Evaluation.new(%{x: 1, y: 2, z: 3})
+      %Evaluation{problem: c.problem, binding: %{x: 1, y: 2, z: 3}}
       |> evaluation
       |> evaluation
       |> evaluation
@@ -37,8 +36,7 @@ defmodule Aruspex.EvaluationTest do
     assert e.step == 3
 
     e =
-      c.problem
-      |> Evaluation.new(%{x: 2, y: 2, z: 3})
+      %Evaluation{problem: c.problem, binding: %{x: 2, y: 2, z: 3}}
       |> evaluation
 
     assert e.valid? == false

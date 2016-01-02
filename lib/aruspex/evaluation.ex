@@ -15,9 +15,6 @@ defmodule Aruspex.Evaluation do
 
   defdelegate get_and_update(e, a, f), to: Map
 
-  def new(problem, binding),
-    do: struct(__MODULE__, binding: binding, problem: problem)
-
   def complete(evaluation),
     do: put_in evaluation.complete?, true
 
