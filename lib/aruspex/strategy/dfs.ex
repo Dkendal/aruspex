@@ -33,7 +33,7 @@ defimpl Enumerable, for: Aruspex.Strategy.Dfs do
         {:done, acc}
 
     after s.timeout ->
-      raise "sup"
+      raise "timeout"
     end
   end
 
