@@ -38,9 +38,8 @@ defimpl Enumerable, for: Aruspex.Strategy.Dfs do
 
   def do_reduce([{var, domain} | t], eval, acc, fun) do
     Enum.flat_map_reduce domain, acc, fn value, acc ->
-      eval =
-        put_in(eval.binding[var], value)
-        |> evaluation
+      eval = put_in(eval.binding[var], value)
+      eval = evaluation eval
 
       if eval.valid?, do: do_reduce(t, eval, acc, fun), else: {[], acc}
     end
