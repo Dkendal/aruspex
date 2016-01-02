@@ -14,7 +14,18 @@ defmodule Aruspex.EvaluationTest do
     problem |> post(:y, :z, &!=/2)
     problem |> post(:x, :y, &+/2)
 
-    {:ok, problem: problem}
+    valid_assignment = %Evaluation{
+      problem: problem,
+      binding: %{x: 1, y: 2, z: 3}}
+
+    invalid_assignment = %Evaluation{
+      problem: problem,
+      binding: %{x: 2, y: 2, z: 3}}
+
+    { :ok,
+      problem: problem,
+      invalid_assignment: invalid_assignment,
+      valid_assignment: valid_assignment}
   end
 
   test "get_and_update_in/3" do
@@ -22,36 +33,30 @@ defmodule Aruspex.EvaluationTest do
     assert e.cost.x == 1
   end
 
-  test "evaluation/1", c do
-    e =
-      %Evaluation{problem: c.problem, binding: %{x: 1, y: 2, z: 3}}
-      |> evaluation
-      |> evaluation
-      |> evaluation
+  describe "evaluation/1" do
+    it "sets computed values for the assignment", config do
+      result = config.valid_assignment
+                |> evaluation
+                |> evaluation
+                |> evaluation
 
-    assert e.valid? == true
-    assert e.total_cost == 3
-    assert e.cost.x == 3
-    assert e.cost.y == 3
-    assert e.step == 3
+      assert result.valid? == true
+      assert result.total_cost == 3
+      assert result.cost.x == 3
+      assert result.cost.y == 3
+      assert result.step == 3
+      assert result.total_violations == 0
+      assert result.violations == %{}
+    end
 
-    e =
-      %Evaluation{problem: c.problem, binding: %{x: 2, y: 2, z: 3}}
-      |> evaluation
-
-    assert e.valid? == false
-    assert e.step == 1
-    assert e.total_violations == 1
-    assert e.violations == %{x: 1, y: 1}
-
-    e =
-      e
-      |> bind(%{x: 1, y: 2, z: 3})
-      |> evaluation
-
-    assert e.valid? == true
-    assert e.step == 2
-    assert e.total_violations == 0
-    assert e.violations == %{}
+    context "with a invalid assignment" do
+      it "marks the evaluation as invalid", config do
+        result = evaluation config.invalid_assignment
+        assert result.valid? == false
+        assert result.step == 1
+        assert result.total_violations == 1
+        assert result.violations == %{x: 1, y: 1}
+      end
+    end
   end
 end
