@@ -5,7 +5,7 @@ defmodule Aruspex.Mixfile do
     [
       app: :aruspex,
       version: "0.0.1",
-      elixir: "~> 1.0",
+      elixir: "~> 1.2",
       description: description,
       package: package,
       build_embedded: Mix.env == :prod,
