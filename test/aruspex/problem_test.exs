@@ -2,6 +2,17 @@ defmodule Aruspex.ProblemTest do
   alias Aruspex.{Evaluation, Problem}
   use Aruspex.Case
 
+  describe "post/3" do
+    it "can add binary constraints" do
+      p = Problem.new
+      p |> Problem.add_variable(:x, 1..9)
+        |> Problem.add_variable(:y, 1..9)
+        |> Problem.post(:x, :y, &!=/2)
+
+      assert Problem.no_constraints(p) == 1
+    end
+  end
+
   describe "post/2" do
     context "with a nonbinary constraint" do
       it "converts it into many binary constraints" do
