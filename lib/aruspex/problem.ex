@@ -31,17 +31,22 @@ defmodule Aruspex.Problem do
   preforming a direct assignment of substituted variables during the evaluation
   """
   @spec post(t, [variable], constraint) :: t
-  def post(problem, v, c) do
-    hidden = new_hidden(v)
+  def post(problem, v, c) when is_list(v) do
+    new_variable = new_hidden(v)
 
-    ^problem = add_variable(problem, hidden, :hidden)
+    ^problem = add_variable(problem, new_variable, :hidden)
 
-    new_constraint = fn variable, _ ->
-      apply(c, (for v <- v, do: variable[v]))
-    end
+    new_constraint = &apply(c, (for v_i <- v, do: &1[v_i]))
 
-    post(problem, hidden, hidden, new_constraint)
+    post(problem, new_variable, new_constraint)
   end
+
+  @doc """
+  Defines a unary constraint on a variable.
+  """
+  @spec post(t, variable, constraint) :: t
+  def post(problem, v, c),
+    do: post(problem, v, v, c)
 
   @spec post(t, variable, variable, constraint) :: t
   def post(csp(graph: g) = problem, v1, v2, c) do

@@ -48,11 +48,13 @@ defmodule Aruspex.EvaluationTest do
         p |> add_variable(:x, 1..10)
           |> add_variable(:y, 1..10)
           |> post(:x, :y, fn x, y -> x + y end)
+          |> post(:x, & &1 >= 2)
+          |> post(:x, & &1)
 
         result = evaluation %Evaluation{problem: p, binding: %{x: 2, y: 2}}
         assert result.valid? == true
-        assert result.total_cost == 4
-        assert result.cost.x == 4
+        assert result.total_cost == 6
+        assert result.cost.x == 6
         assert result.cost.y == 4
       end
     end

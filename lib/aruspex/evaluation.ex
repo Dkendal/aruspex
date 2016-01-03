@@ -119,8 +119,7 @@ defmodule Aruspex.Evaluation do
     acc =
       acc
       |> invalid
-      |> inc_violation(v1)
-      |> inc_violation(v2)
+      |> inc_violation(v1, v2)
       |> inc_total_violations
 
     {[], acc}
@@ -130,8 +129,7 @@ defmodule Aruspex.Evaluation do
     {v1, v2} = Constraint.variables(c)
     acc =
       acc
-      |> add_cost(v1, x)
-      |> add_cost(v2, x)
+      |> add_cost(v1, v2, x)
       |> add_total_cost(x)
 
     {[], acc}
@@ -153,11 +151,29 @@ defmodule Aruspex.Evaluation do
   defp add_total_cost(acc, cost),
     do: update_in(acc.total_cost, & &1 + cost)
 
+  defp add_cost(acc, v, v, cost),
+    do: acc
+    |> add_cost(v, cost)
+
+  defp add_cost(acc, v1, v2, cost),
+    do: acc
+    |> add_cost(v1, cost)
+    |> add_cost(v2, cost)
+
   defp add_cost(acc, v, cost),
     do: update_in(acc, [:cost, v], & (&1 || 0) + cost)
 
   defp inc_total_violations(acc),
     do: update_in(acc, [:total_violations], & &1 + 1)
+
+  defp inc_violation(acc, v, v),
+    do: acc
+    |> inc_violation(v)
+
+  defp inc_violation(acc, v1, v2),
+    do: acc
+    |> inc_violation(v1)
+    |> inc_violation(v2)
 
   defp inc_violation(acc, v),
     do: update_in(acc, [:violations, v], & (&1 || 0) + 1)
