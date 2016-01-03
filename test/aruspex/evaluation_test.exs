@@ -12,7 +12,6 @@ defmodule Aruspex.EvaluationTest do
     problem |> post(:x, :y, &!=/2)
     problem |> post(:x, :z, &!=/2)
     problem |> post(:y, :z, &!=/2)
-    problem |> post(:x, :y, &+/2)
 
     valid_assignment = %Evaluation{
       problem: problem,
@@ -29,24 +28,33 @@ defmodule Aruspex.EvaluationTest do
   end
 
   test "get_and_update_in/3" do
-    e = update_in(%Aruspex.Evaluation{}, [:cost, :x], fn _ -> 1 end)
+    e = update_in(%Evaluation{}, [:cost, :x], fn _ -> 1 end)
     assert e.cost.x == 1
   end
 
   describe "evaluation/1" do
-    it "sets computed values for the assignment", config do
+    it "increments the step counter", config do
       result = config.valid_assignment
                 |> evaluation
                 |> evaluation
                 |> evaluation
 
-      assert result.valid? == true
-      assert result.total_cost == 3
-      assert result.cost.x == 3
-      assert result.cost.y == 3
       assert result.step == 3
-      assert result.total_violations == 0
-      assert result.violations == %{}
+    end
+
+    context "with soft constraints/preferences" do
+      it "sets the cost of assignments" do
+        p = new
+        p |> add_variable(:x, 1..10)
+          |> add_variable(:y, 1..10)
+          |> post(:x, :y, fn x, y -> x + y end)
+
+        result = evaluation %Evaluation{problem: p, binding: %{x: 2, y: 2}}
+        assert result.valid? == true
+        assert result.total_cost == 4
+        assert result.cost.x == 4
+        assert result.cost.y == 4
+      end
     end
 
     context "with a invalid assignment" do
@@ -58,26 +66,26 @@ defmodule Aruspex.EvaluationTest do
         assert result.violations == %{x: 1, y: 1}
       end
     end
+  end
 
-    describe "hidden_assigment/1" do
-      it "assigns the substituted variables to the hidden variable" do
-        p = Problem.new
+  describe "hidden_assigment/1" do
+    it "assigns the substituted variables to the hidden variable" do
+      p = Problem.new
 
-        p |> Problem.add_variable(:x, 1..9)
-          |> Problem.add_variable(:y, 1..9)
-          |> Problem.add_variable(:z, 1..9)
-          |> Problem.post([:x, :y, :z], & &1 + &2 == &3)
+      p |> Problem.add_variable(:x, 1..9)
+        |> Problem.add_variable(:y, 1..9)
+        |> Problem.add_variable(:z, 1..9)
+        |> Problem.post([:x, :y, :z], & &1 + &2 == &3)
 
-        result = %Evaluation{problem: p, binding: %{x: 1, y: 2, z: 4}}
-                  |> Evaluation.hidden_assigment
+      result = %Evaluation{problem: p, binding: %{x: 1, y: 2, z: 4}}
+                |> Evaluation.hidden_assigment
 
-        assert Enum.any? result.binding, fn
-          {{:hidden, _, _}, %{x: 1, y: 2, z: 4}} ->
-            true
+      assert Enum.any? result.binding, fn
+        {{:hidden, _, _}, %{x: 1, y: 2, z: 4}} ->
+          true
 
-          {_, _} ->
-            false
-        end
+        {_, _} ->
+          false
       end
     end
   end
