@@ -19,7 +19,7 @@ defimpl Enumerable, for: Aruspex.Strategy.SimulatedAnnealing do
   import Evaluation
   use Aruspex.Strategy
 
-  def reduce(s, {:cont, acc}, fun) do
+  def reduce(%SA{} = s, {:cont, acc}, fun) do
     binding = restart s.problem
     eval = evaluation %Evaluation{problem: s.problem, binding: binding}
     do_reduce(eval, s, {:cont, acc}, fun)
