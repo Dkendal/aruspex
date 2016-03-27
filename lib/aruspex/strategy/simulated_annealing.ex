@@ -32,7 +32,7 @@ defimpl Enumerable, for: Aruspex.Strategy.SimulatedAnnealing do
   end
 
   def do_reduce(%Evaluation{step: k} = e, %SA{k_max: k}, {:cont, acc}, fun) do
-    {:done, fun.(e, acc)}
+    {:done, acc}
   end
 
   def do_reduce(eval, s, acc, fun) do
