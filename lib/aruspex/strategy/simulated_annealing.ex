@@ -25,7 +25,7 @@ defimpl Enumerable, for: Aruspex.Strategy.SimulatedAnnealing do
     do_reduce(eval, s, {:cont, acc}, fun)
   end
 
-  def do_reduce(e, s, {:halt, acc}, fun), do: {:halted, acc}
+  def do_reduce(_, s, {:halt, acc}, fun), do: {:halted, acc}
 
   def do_reduce(%Evaluation{valid?: true} = e, s, {:cont, acc}, fun) do
     do_reduce bind(e, restart(s.problem)), s, fun.(e, acc), fun
@@ -73,7 +73,7 @@ defimpl Enumerable, for: Aruspex.Strategy.SimulatedAnnealing do
     :math.exp(-(e_p - e)/temp)
   end
 
-  def restart(p) do
+  def restart(csp() = p) do
     labeled_variables(p)
     |> Enum.map(fn {v, d} ->
       {v, Enum.random(d)}
