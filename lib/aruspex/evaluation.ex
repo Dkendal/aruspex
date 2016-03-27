@@ -93,16 +93,15 @@ defmodule Aruspex.Evaluation do
       evaluation.problem
       |> subproblem(evaluation.binding)
 
-    g
-    |> labeled_constraints
-    |> Enum.flat_map_reduce(evaluation, do_evaluation)
-    |> elem(1)
-    |> case do
-      x ->
-        # release ets tables
-        delete(g)
-        x
-    end
+    result =
+      g
+      |> labeled_constraints
+      |> Enum.flat_map_reduce(evaluation, do_evaluation)
+      |> elem(1)
+
+    # release ets tables
+    delete(g)
+    result
   end
 
   def do_evaluation(c, acc, opts) when is_tuple(c),
