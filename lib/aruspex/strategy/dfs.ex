@@ -20,7 +20,8 @@ defimpl Enumerable, for: Aruspex.Strategy.Dfs do
     eval = %Evaluation{problem: s.problem}
 
     s.problem
-    |> labeled_variables(order: :most_constrained)
+    |> labeled_variables
+    |> most_constrained(s.problem)
     |> do_reduce(eval, acc, fun)
   end
 

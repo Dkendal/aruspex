@@ -66,27 +66,28 @@ defmodule Aruspex.Problem do
   @doc """
   Return a list of variables along with their domains
   """
-  @spec labeled_variables(t, [{atom, any}]) :: [{variable, domain}]
-  def labeled_variables(p, opts \\ []) do
-    collect_visible_variables = fn variable, acc ->
-      case variable(p, variable) do
-        { { :hidden, _, _ }, _domain } ->
-          acc
-        variable_domain ->
-          [ variable_domain | acc ]
-      end
-    end
+  @spec labeled_variables(t) :: [{variable, domain}]
+  def labeled_variables(p) do
+    variables(p)
+    |> remove_hidden()
+    |> Enum.map(&variable(p, &1))
+  end
 
-    Enum.reduce(variables(p, opts), [], collect_visible_variables)
+  def remove_hidden(variables) do
+    Enum.reject variables, fn
+      { :hidden, _, _ } ->
+        true
+      _ ->
+        false
+    end
+  end
+
+  def most_constrained(variables, p) do
+    Enum.sort_by variables, &degree(p, &1), &>=/2
   end
 
   def labeled_constraints(p),
     do: constraints(p) |> Enum.map(&constraint(p, &1))
-
-  def variables(p, []), do: variables(p)
-
-  def variables(p, [{:order, :most_constrained} | opts]),
-    do: variables(p, opts) |> Enum.sort_by(&degree(p, &1), &>=/2)
 
   def variables(csp(graph: g)),
     do: :digraph.vertices(g)
