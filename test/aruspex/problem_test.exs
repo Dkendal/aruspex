@@ -54,10 +54,13 @@ defmodule Aruspex.ProblemTest do
     end
 
     it "does not return hidden variables" do
-      assert [ x: 1..9 ] == Problem.new
-                          |> Problem.add_variable(:x, 1..9)
-                          |> Problem.add_variable(:c, :hidden)
-                          |> Problem.labeled_variables()
+      assert([ x: 1..9, y: 1..9, z: 1..9 ] ==
+        Problem.new
+        |> Problem.add_variable(:x, 1..9)
+        |> Problem.add_variable(:y, 1..9)
+        |> Problem.add_variable(:z, 1..9)
+        |> Problem.post([:x, :y, :z], & &1 + &2 == &3)
+        |> Problem.labeled_variables())
     end
   end
 end

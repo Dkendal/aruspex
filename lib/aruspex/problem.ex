@@ -71,7 +71,7 @@ defmodule Aruspex.Problem do
     Enum.reduce variables(p, opts), [], fn
       variable, acc ->
         case variable(p, variable) do
-          { _var, :hidden } ->
+          { { :hidden, _, _ }, _domain } ->
             acc
           variable_domain ->
             [ variable_domain | acc ]
