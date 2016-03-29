@@ -63,8 +63,14 @@ defmodule Aruspex.Problem do
   def degree(csp(graph: p), v),
     do: :digraph.in_degree(p, v) + :digraph.out_degree(p, v)
 
-  def labeled_variables(p, opts \\ []),
-    do: variables(p, opts) |> Enum.map(&variable(p, &1))
+  @doc """
+  Return a list of variables along with their domains
+  """
+  @spec labeled_variables(t, [{atom, any}]) :: [{variable, domain}]
+  def labeled_variables(p, opts \\ []) do
+    variables(p, opts)
+    |> Enum.map(&variable(p, &1))
+  end
 
   def labeled_constraints(p),
     do: constraints(p) |> Enum.map(&constraint(p, &1))
