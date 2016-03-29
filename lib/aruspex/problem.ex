@@ -68,15 +68,16 @@ defmodule Aruspex.Problem do
   """
   @spec labeled_variables(t, [{atom, any}]) :: [{variable, domain}]
   def labeled_variables(p, opts \\ []) do
-    Enum.reduce variables(p, opts), [], fn
-      variable, acc ->
-        case variable(p, variable) do
-          { { :hidden, _, _ }, _domain } ->
-            acc
-          variable_domain ->
-            [ variable_domain | acc ]
-        end
+    collect_visible_variables = fn variable, acc ->
+      case variable(p, variable) do
+        { { :hidden, _, _ }, _domain } ->
+          acc
+        variable_domain ->
+          [ variable_domain | acc ]
+      end
     end
+
+    Enum.reduce(variables(p, opts), [], collect_visible_variables)
   end
 
   def labeled_constraints(p),
