@@ -45,4 +45,12 @@ defmodule Aruspex.ProblemTest do
       end
     end
   end
+
+  describe "labeled_variables/2" do
+    it "returns the variables along with their domain" do
+      assert [ x: 1..9 ] == Problem.new
+                          |> Problem.add_variable(:x, 1..9)
+                          |> Problem.labeled_variables()
+    end
+  end
 end
