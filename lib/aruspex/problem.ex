@@ -68,8 +68,7 @@ defmodule Aruspex.Problem do
   """
   @spec labeled_variables(t, [{atom, any}]) :: [{variable, domain}]
   def labeled_variables(p, opts \\ []) do
-    variables(p, opts)
-    |> Enum.map(&variable(p, &1))
+    for v <- variables(p, opts), do: variable(p, v)
   end
 
   def labeled_constraints(p),
