@@ -3,7 +3,6 @@ defmodule Aruspex.Case do
 
   using do
     quote do
-      use ExSpec
     end
   end
 end
