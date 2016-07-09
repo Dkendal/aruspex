@@ -1,8 +1,8 @@
-%{"dialyze": {:hex, :dialyze, "0.2.0"},
+%{"dialyze": {:hex, :dialyze, "0.2.0", "ecabf292e9f4bd0f7d844981f899a85c0300b30ff2dd1cdfef0c81a6496466f1", [:mix], []},
   "eflame": {:git, "https://github.com/proger/eflame.git", "55f594153d03f41d8dbd6b6da7c784f93fa81345", []},
-  "ex_doc": {:hex, :ex_doc, "0.11.1"},
+  "ex_doc": {:hex, :ex_doc, "0.11.1", "43a16e4168e384213a052e6ee77723b765165b866ac52a10394dfa8f7de5b203", [:mix], [{:earmark, "~> 0.1.17 or ~> 0.2", [hex: :earmark, optional: true]}]},
   "ex_spec": {:git, "https://github.com/dkendal/ex_spec.git", "407362c63bd42e6beb2e34b48fa0a8cbf7d164e2", [branch: "master"]},
   "exactor": {:hex, :exactor, "2.2.0"},
-  "exyz": {:hex, :exyz, "1.0.0"},
+  "exyz": {:hex, :exyz, "1.0.0", "9cc0cbdd0480c261a5d05ff72b294968b9ff69983efc392b78f6e584acfaf957", [:mix], []},
   "poison": {:hex, :poison, "1.5.0"},
-  "zipper_tree": {:hex, :zipper_tree, "0.1.1"}}
+  "zipper_tree": {:hex, :zipper_tree, "0.1.1", "e4d4a2bfdf958fea0aaf844e1b3ef457ea11d6331ba77a043b6b5606f6222a47", [:mix], []}}
