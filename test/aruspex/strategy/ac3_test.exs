@@ -25,7 +25,7 @@ defmodule Aruspex.Strategy.Ac3Test do
   end
 
   describe "choose/1" do
-    it "returns the most constraint unbound variable",
+    test "returns the most constraint unbound variable",
     %{ assignment: assignment } do
       import Aruspex.Evaluation
 

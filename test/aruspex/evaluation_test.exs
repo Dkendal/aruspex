@@ -17,14 +17,14 @@ defmodule Aruspex.EvaluationTest do
       problem: problem,
       binding: %{x: 1, y: 2, z: 3}}
 
-    invalid_assignment = %Evaluation{
-      problem: problem,
-      binding: %{x: 2, y: 2, z: 3}}
+     invalid_assignment = %Evaluation{
+       problem: problem,
+       binding: %{x: 2, y: 2, z: 3}}
 
-    { :ok,
-      problem: problem,
-      invalid_assignment: invalid_assignment,
-      valid_assignment: valid_assignment}
+      { :ok,
+        problem: problem,
+        invalid_assignment: invalid_assignment,
+        valid_assignment: valid_assignment}
   end
 
   test "get_and_update_in/3" do
@@ -33,7 +33,7 @@ defmodule Aruspex.EvaluationTest do
   end
 
   describe "evaluation/1" do
-    it "increments the step counter", config do
+    test "increments the step counter", config do
       result = config.valid_assignment
                 |> evaluation
                 |> evaluation
@@ -42,36 +42,32 @@ defmodule Aruspex.EvaluationTest do
       assert result.step == 3
     end
 
-    context "with soft constraints/preferences" do
-      it "sets the cost of assignments" do
-        p = new
-        p |> add_variable(:x, 1..10)
-          |> add_variable(:y, 1..10)
-          |> post(:x, :y, fn x, y -> x + y end)
-          |> post(:x, & &1 >= 2)
-          |> post(:x, & &1)
+    test "with soft constraints/preferences sets the cost of assignments" do
+      p = new
+      p |> add_variable(:x, 1..10)
+        |> add_variable(:y, 1..10)
+        |> post(:x, :y, fn x, y -> x + y end)
+        |> post(:x, & &1 >= 2)
+        |> post(:x, & &1)
 
-        result = evaluation %Evaluation{problem: p, binding: %{x: 2, y: 2}}
-        assert result.valid? == true
-        assert result.total_cost == 6
-        assert result.cost.x == 6
-        assert result.cost.y == 4
-      end
+      result = evaluation %Evaluation{problem: p, binding: %{x: 2, y: 2}}
+      assert result.valid? == true
+      assert result.total_cost == 6
+      assert result.cost.x == 6
+      assert result.cost.y == 4
     end
 
-    context "with a invalid assignment" do
-      it "marks the evaluation as invalid", config do
-        result = evaluation config.invalid_assignment
-        assert result.valid? == false
-        assert result.step == 1
-        assert result.total_violations == 1
-        assert result.violations == %{x: 1, y: 1}
-      end
+    test "with a invalid assignment marks the evaluation as invalid", config do
+      result = evaluation config.invalid_assignment
+      assert result.valid? == false
+      assert result.step == 1
+      assert result.total_violations == 1
+      assert result.violations == %{x: 1, y: 1}
     end
   end
 
   describe "hidden_assigment/1" do
-    it "assigns the substituted variables to the hidden variable" do
+    test "assigns the substituted variables to the hidden variable" do
       p = Problem.new
 
       p |> Problem.add_variable(:x, 1..9)
