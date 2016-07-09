@@ -1,5 +1,6 @@
 defmodule Aruspex.Strategy.Ac3Test do
   use Aruspex.Case
+  import Aruspex.Strategy.Ac3
 
   setup do
     import Aruspex.Problem
@@ -12,6 +13,7 @@ defmodule Aruspex.Strategy.Ac3Test do
     |> post([:x, :y, :z], fn x, y, z ->
       x + y == z
     end)
+    |> post(:y, & rem(&1, 2) == 0)
 
     assignment = %Aruspex.Evaluation{problem: problem}
 
@@ -23,8 +25,13 @@ defmodule Aruspex.Strategy.Ac3Test do
   end
 
   describe "choose/1" do
-    it "returns an unbound variable", %{ assignment: assignment } do
-      assert Aruspex.Strategy.Ac3.choose(assignment) in [:x, :y, :z]
+    it "returns the most constraint unbound variable",
+    %{ assignment: assignment } do
+      import Aruspex.Evaluation
+
+      assert choose(assignment) == :y
+
+      assert choose(bind(assignment, y: 1)) in [:x, :z]
     end
   end
 end

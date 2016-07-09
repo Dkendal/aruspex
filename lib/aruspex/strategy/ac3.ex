@@ -14,7 +14,17 @@ defmodule Aruspex.Strategy.Ac3 do
   end
 
   def choose(evaluation) do
-    hd variables evaluation.problem
+    problem = evaluation.problem
+
+    bound_variables = Dict.keys(evaluation.binding)
+
+    variables = variables(problem)
+                |> remove_hidden
+                |> most_constrained(problem)
+
+    Enum.find variables, fn variable ->
+      not variable in bound_variables
+    end
   end
 end
 
