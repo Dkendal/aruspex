@@ -38,7 +38,7 @@ defimpl Enumerable, for: Aruspex.Strategy.Ac3 do
   # select a value from the domain
   # collapse domain to v
   # for each edge, collapse domains to values that hold true
-  def reduce(s, {:cont, acc}, fun) do
+  def reduce(_s, {:cont, acc}, _fun) do
     { :done, acc }
   end
 end

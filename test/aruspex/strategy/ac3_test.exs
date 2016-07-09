@@ -20,10 +20,6 @@ defmodule Aruspex.Strategy.Ac3Test do
     { :ok, problem: problem, assignment: assignment }
   end
 
-  test "solves basic constraints", %{problem: problem} do
-    import Aruspex.Problem
-  end
-
   describe "choose/1" do
     test "returns the most constraint unbound variable",
     %{ assignment: assignment } do
