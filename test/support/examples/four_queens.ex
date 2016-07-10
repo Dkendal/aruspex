@@ -1,45 +1,26 @@
 defmodule Examples.FourQueens do
-  defmacro test strategy do
-    quote do
-      test "#{inspect unquote(strategy).__struct__} solves 4 queens" do
-        import Enum
-        import Aruspex.Server
-        use Aruspex.Constraint
-        variables = 1..4
 
-        {:ok, pid} = start_link
+  def new() do
+    import Aruspex.Problem, except: [new: 0]
+    import Aruspex.Strategy
 
-        map variables, & variable(pid, &1, variables)
+    domain = 1..4
+    vars = for x <- domain, do: :"var-#{x}"
 
-        pid
-        |> set_search_strategy(unquote strategy)
-        |> post(all_diff variables)
+    problem = Aruspex.Problem.new
 
-        for x <- variables, y <- variables, y > x do
-          pid
-          |> post(linear x + ^x != y + ^y)
-          |> post(linear x - ^x != y - ^y)
-        end
+    Enum.map vars, &add_variable(problem, &1, domain)
 
-        solution = find_solution pid
+    for x <- domain, y <- domain, y > x do
+      a = Enum.at(vars, x - 1)
+      b = Enum.at(vars, y - 1)
 
-        case solution[1] do
-          3 ->
-            assert solution[1] == 3
-            assert solution[2] == 1
-            assert solution[3] == 4
-            assert solution[4] == 2
-
-          2 ->
-            assert solution[1] == 2
-            assert solution[2] == 4
-            assert solution[3] == 1
-            assert solution[4] == 3
-
-          s ->
-            flunk "didn't find a solution: #{inspect s}"
-        end
-      end
+      problem
+      |> post(a, b, & &1 != &2)
+      |> post(a, b, fn a, b -> a + x != b + y end)
+      |> post(a, b, fn a, b -> a - x != b - y end)
     end
+
+    problem
   end
 end
